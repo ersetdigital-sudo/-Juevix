@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import { useToast } from "@/components/admin/Toast";
 
@@ -41,6 +41,9 @@ export default function AdminNominals() {
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<Nominal | null>(null);
+  const [dragId, setDragId] = useState<number | null>(null);
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
 
   const load = () => {
     Promise.all([
@@ -55,6 +58,8 @@ export default function AdminNominals() {
   useEffect(() => { load(); }, []);
 
   const filtered = filter ? nominals.filter((n) => n.game_slug === filter) : nominals;
+
+  const showGameCol = !filter;
 
   const handleSubmit = async () => {
     setSaving(true);
@@ -101,6 +106,52 @@ export default function AdminNominals() {
     setShowForm(true);
   };
 
+  const handleDragStart = useCallback((idx: number) => {
+    dragItem.current = idx;
+    setDragId(filtered[idx].id);
+  }, [filtered]);
+
+  const handleDragEnter = useCallback((idx: number) => {
+    dragOverItem.current = idx;
+  }, []);
+
+  const handleDragEnd = useCallback(async () => {
+    if (dragItem.current === null || dragOverItem.current === null) {
+      setDragId(null);
+      return;
+    }
+
+    const items = [...filtered];
+    const [dragged] = items.splice(dragItem.current, 1);
+    items.splice(dragOverItem.current, 0, dragged);
+
+    dragItem.current = null;
+    dragOverItem.current = null;
+    setDragId(null);
+
+    const updates = items.map((item, idx) => ({ id: item.id, sort_order: idx }));
+    setNominals((prev) => {
+      const next = [...prev];
+      for (const u of updates) {
+        const idx = next.findIndex((n) => n.id === u.id);
+        if (idx !== -1) next[idx] = { ...next[idx], sort_order: u.sort_order };
+      }
+      return next;
+    });
+
+    try {
+      await fetch("/api/admin/nominals/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ updates }),
+      });
+      showToast("success", "Urutan nominal diperbarui");
+    } catch {
+      showToast("error", "Gagal memperbarui urutan");
+      load();
+    }
+  }, [filtered, showToast]);
+
   const fmt = (n: number) => "Rp" + n.toLocaleString("id-ID");
 
   return (
@@ -119,7 +170,7 @@ export default function AdminNominals() {
           <p className="text-[14px] text-gray-500 mt-1">Kelola harga top up per game.</p>
         </div>
         <button
-          onClick={() => { setForm(empty); setEditId(null); setShowForm(true); }}
+          onClick={() => { setForm({ ...empty, game_slug: filter || "" }); setEditId(null); setShowForm(true); }}
           className="jx-btn jx-btn-primary text-[13px]"
         >
           + Tambah Nominal
@@ -178,10 +229,6 @@ export default function AdminNominals() {
                 <option value="wait">Promo (Kuning)</option>
               </select>
             </div>
-            <div>
-              <label className="block text-[12px] font-bold mb-1">Sort Order</label>
-              <input type="number" className="jx-input" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: parseInt(e.target.value) })} />
-            </div>
           </div>
           <div className="flex gap-2">
             <button onClick={handleSubmit} disabled={saving} className="jx-btn jx-btn-primary text-[13px]">
@@ -198,18 +245,37 @@ export default function AdminNominals() {
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-gray-100 text-left text-gray-500 font-semibold">
-              <th className="px-5 py-3">Game</th>
+              <th className="w-10"></th>
+              {showGameCol && <th className="px-5 py-3">Game</th>}
               <th className="px-5 py-3">Label</th>
               <th className="px-5 py-3">Harga</th>
               <th className="px-5 py-3">Badge</th>
-              <th className="px-5 py-3">Sort</th>
               <th className="px-5 py-3 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((n) => (
-              <tr key={n.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                <td className="px-5 py-3 font-bold">{n.game_slug}</td>
+            {filtered.map((n, idx) => (
+              <tr
+                key={n.id}
+                draggable
+                onDragStart={() => handleDragStart(idx)}
+                onDragEnter={() => handleDragEnter(idx)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => e.preventDefault()}
+                className={`border-b border-gray-50 transition-colors ${
+                  dragId === n.id
+                    ? "bg-blue-50 opacity-50"
+                    : "hover:bg-gray-50/50"
+                }`}
+              >
+                <td className="px-2 py-3 text-center">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" className="mx-auto cursor-grab active:cursor-grabbing">
+                    <circle cx="9" cy="5" r="1.5" /><circle cx="15" cy="5" r="1.5" />
+                    <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                    <circle cx="9" cy="19" r="1.5" /><circle cx="15" cy="19" r="1.5" />
+                  </svg>
+                </td>
+                {showGameCol && <td className="px-5 py-3 font-bold">{n.game_slug}</td>}
                 <td className="px-5 py-3">{n.label}</td>
                 <td className="px-5 py-3 font-bold text-[#00b96b]">{fmt(n.price)}</td>
                 <td className="px-5 py-3">
@@ -219,7 +285,6 @@ export default function AdminNominals() {
                     </span>
                   )}
                 </td>
-                <td className="px-5 py-3 text-gray-500">{n.sort_order}</td>
                 <td className="px-5 py-3 text-right space-x-2">
                   <button onClick={() => handleEdit(n)} className="text-blue-600 hover:underline font-semibold">Edit</button>
                   <button onClick={() => setDeleteTarget(n)} className="text-red-500 hover:underline font-semibold">Hapus</button>
@@ -227,11 +292,18 @@ export default function AdminNominals() {
               </tr>
             ))}
             {!loading && filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-5 py-10 text-center text-gray-400">Belum ada nominal.</td></tr>
+              <tr><td colSpan={showGameCol ? 5 : 4} className="px-5 py-10 text-center text-gray-400">Belum ada nominal.</td></tr>
             )}
           </tbody>
         </table>
       </div>
+
+      <p className="text-[11px] text-gray-400 flex items-center gap-1.5">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+        </svg>
+        Geser baris untuk mengurutkan nominal. Urutan tersimpan otomatis.
+      </p>
     </div>
   );
 }
