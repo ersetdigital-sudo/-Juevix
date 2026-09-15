@@ -18,14 +18,15 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
       >
         {slides.map((slide, i) => (
           <SwiperSlide key={slide.id}>
-            <Link href={slide.href} className="block">
+            <Link href={slide.href} className="block relative aspect-[3/1] sm:aspect-[3/1]">
               <Image
                 src={slide.image}
                 alt={slide.alt}
                 width={1200}
                 height={400}
-                className="w-full h-auto"
+                className="w-full h-full object-cover"
                 priority={i === 0}
+                sizes="(max-width: 768px) 100vw, 1200px"
               />
             </Link>
           </SwiperSlide>
