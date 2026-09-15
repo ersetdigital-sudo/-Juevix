@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 interface PaymentMethod {
   id: number;
@@ -18,6 +20,22 @@ interface PaymentMethod {
   icon: string | null;
 }
 
+interface OrderData {
+  invoice: string;
+  game_name: string;
+  game_slug: string;
+  user_id: string;
+  server_id: string;
+  nickname: string | null;
+  product_label: string;
+  price: number;
+  admin_fee: number;
+  total: number;
+  payment_method: string;
+  status: string;
+  created_at: string;
+}
+
 function formatRupiah(n: number) {
   return "Rp" + n.toLocaleString("id-ID");
 }
@@ -26,9 +44,16 @@ function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-export default function PembayaranPage() {
+function PembayaranInner() {
+  const searchParams = useSearchParams();
+  const invoice = searchParams.get("invoice");
+
   const [payments, setPayments] = useState<PaymentMethod[]>([]);
   const [activeTab, setActiveTab] = useState("");
+  const [order, setOrder] = useState<OrderData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const [countdownLeft, setCountdownLeft] = useState(86400 * 1000);
   const total = 86400 * 1000;
 
@@ -45,16 +70,34 @@ export default function PembayaranPage() {
   }, [tick]);
 
   useEffect(() => {
-    fetch("/api/payments")
-      .then((r) => r.json())
-      .then((data: PaymentMethod[]) => {
-        setPayments(data);
-        if (data.length > 0) {
-          const qris = data.find((p) => p.type === "qris");
-          setActiveTab(qris ? String(qris.id) : String(data[0].id));
+    if (!invoice) {
+      setLoading(false);
+      setError("Invoice tidak ditemukan.");
+      return;
+    }
+
+    Promise.all([
+      fetch(`/api/orders/${invoice}`).then((r) => r.json()),
+      fetch("/api/payments").then((r) => r.json()),
+    ]).then(([orderData, payData]) => {
+      if (orderData.error) {
+        setError(orderData.error);
+      } else {
+        setOrder(orderData);
+      }
+      if (Array.isArray(payData)) {
+        setPayments(payData);
+        const matched = payData.find(
+          (p: PaymentMethod) => p.name === orderData.payment_method || p.id === Number(orderData.payment_method)
+        );
+        if (matched) setActiveTab(String(matched.id));
+        else if (payData.length > 0) {
+          const qris = payData.find((p: PaymentMethod) => p.type === "qris");
+          setActiveTab(qris ? String(qris.id) : String(payData[0].id));
         }
-      });
-  }, []);
+      }
+    }).finally(() => setLoading(false));
+  }, [invoice]);
 
   const s = Math.floor(countdownLeft / 1000);
   const hours = Math.floor(s / 3600);
@@ -77,6 +120,34 @@ export default function PembayaranPage() {
   }));
 
   const selectedPayment = payments.find((p) => String(p.id) === activeTab);
+
+  const createdDate = order?.created_at
+    ? new Date(order.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+    : "—";
+  const createdTime = order?.created_at
+    ? new Date(order.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" }) + " WIB"
+    : "";
+
+  if (loading) {
+    return (
+      <main className="mx-auto max-w-[1060px] px-3 sm:px-5 py-5 pb-10">
+        <div className="jx-panel p-10 text-center text-[var(--jx-muted)]">
+          <p className="font-bold">Memuat data pesanan...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !order) {
+    return (
+      <main className="mx-auto max-w-[1060px] px-3 sm:px-5 py-5 pb-10">
+        <div className="jx-panel p-10 text-center">
+          <p className="font-bold text-red-600">{error || "Invoice tidak ditemukan."}</p>
+          <Link href="/" className="jx-btn jx-btn-primary mt-4 inline-flex">Kembali ke Beranda</Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-[1060px] px-3 sm:px-5 py-5 pb-10">
@@ -113,7 +184,7 @@ export default function PembayaranPage() {
           <p className="font-bold text-[11px] sm:text-[13px] mt-2">Pilih Produk</p>
         </li>
         <li className="relative text-center">
-          <div className="absolute top-[14px] left-1/2 w-full h-[3px] bg-[var(--jx-line)]" />
+          <div className="absolute top-[14px] left-1/2 w-full h-[3px] bg-[var(--jx-neon)]" />
           <span className="relative z-10 w-8 h-8 mx-auto rounded-full grid place-items-center bg-[var(--jx-neon)] text-[#04251a] font-extrabold text-[13px]" style={{ boxShadow: "0 0 0 5px rgba(0,217,126,.18)" }}>2</span>
           <p className="font-bold text-[11px] sm:text-[13px] mt-2 text-[var(--jx-neon-600)]">Pembayaran</p>
         </li>
@@ -134,7 +205,7 @@ export default function PembayaranPage() {
             </span>
             <div>
               <p className="font-bold text-[13px]">Selesaikan pembayaran sebelum</p>
-              <p className="text-[12px] text-[var(--jx-muted)]">14 September 2026, 20:41 WIB</p>
+              <p className="text-[12px] text-[var(--jx-muted)]">{createdDate}, {createdTime}</p>
             </div>
           </div>
           <div className="text-right">
@@ -247,7 +318,7 @@ export default function PembayaranPage() {
                       }}
                     />
                   )}
-                  <p className="font-display font-extrabold text-[19px] mt-4">Rp133.000</p>
+                  <p className="font-display font-extrabold text-[19px] mt-4">{formatRupiah(order.total)}</p>
                   <p className="text-[12px] text-[var(--jx-muted)]">a.n. JUEVIX DIGITAL INDONESIA</p>
                   <div className="flex flex-wrap gap-2 justify-center mt-4">
                     <a href="#" download className="jx-btn jx-btn-primary">
@@ -256,7 +327,7 @@ export default function PembayaranPage() {
                       </svg>
                       Download QR
                     </a>
-                    <button className="jx-btn jx-btn-ghost" onClick={() => navigator.clipboard?.writeText("Rp133.000")}>
+                    <button className="jx-btn jx-btn-ghost" onClick={() => navigator.clipboard?.writeText(formatRupiah(order.total))}>
                       Salin Nominal
                     </button>
                   </div>
@@ -286,7 +357,7 @@ export default function PembayaranPage() {
                   </div>
                   <div className="flex justify-between items-end mt-4 pt-4 border-t border-[var(--jx-line)]">
                     <span className="text-[13px] font-bold">Total Bayar</span>
-                    <span className="font-display font-extrabold text-[19px] text-[var(--jx-neon-600)]">Rp133.000</span>
+                    <span className="font-display font-extrabold text-[19px] text-[var(--jx-neon-600)]">{formatRupiah(order.total)}</span>
                   </div>
                 </div>
               )}
@@ -298,50 +369,51 @@ export default function PembayaranPage() {
           <div className="jx-panel p-5 lg:sticky jx-sticky" style={{ top: 84 }}>
             <h2 className="font-display font-extrabold text-[15px] mb-4">Ringkasan Pesanan</h2>
             <div className="flex items-center gap-3 pb-4 border-b border-[var(--jx-line)]">
-              <Image src="/ml-banner.png" alt="Mobile Legends" width={48} height={48} className="w-12 h-12 rounded-xl object-cover" />
+              <Image src={`/${order.game_slug}-banner.png`} alt={order.game_name} width={48} height={48} className="w-12 h-12 rounded-xl object-cover" />
               <div className="min-w-0">
-                <p className="font-bold text-[13px] truncate">Mobile Legends</p>
-                <p className="text-[11px] text-[var(--jx-muted)]">Moonton • MOBA</p>
+                <p className="font-bold text-[13px] truncate">{order.game_name}</p>
               </div>
             </div>
             <dl className="text-[13px] py-4 space-y-2.5 border-b border-[var(--jx-line)]">
               <div className="flex justify-between gap-3">
                 <dt className="text-[var(--jx-muted)]">User ID</dt>
-                <dd className="font-bold">12345678</dd>
+                <dd className="font-bold">{order.user_id}</dd>
               </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-[var(--jx-muted)]">Server ID</dt>
-                <dd className="font-bold">2145</dd>
-              </div>
+              {order.server_id && (
+                <div className="flex justify-between gap-3">
+                  <dt className="text-[var(--jx-muted)]">Server ID</dt>
+                  <dd className="font-bold">{order.server_id}</dd>
+                </div>
+              )}
               <div className="flex justify-between gap-3">
                 <dt className="text-[var(--jx-muted)]">Produk</dt>
-                <dd className="font-bold text-right">500 Diamond</dd>
+                <dd className="font-bold text-right">{order.product_label}</dd>
               </div>
               <div className="flex justify-between gap-3">
                 <dt className="text-[var(--jx-muted)]">Pembayaran</dt>
-                <dd className="font-bold text-right">{selectedPayment?.name || "-"}</dd>
+                <dd className="font-bold text-right">{selectedPayment?.name || order.payment_method}</dd>
               </div>
             </dl>
             <dl className="text-[13px] py-4 space-y-2.5 border-b border-[var(--jx-line)]">
               <div className="flex justify-between">
                 <dt className="text-[var(--jx-muted)]">Subtotal</dt>
-                <dd className="font-bold">Rp132.000</dd>
+                <dd className="font-bold">{formatRupiah(order.price)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-[var(--jx-muted)]">Biaya admin</dt>
-                <dd className="font-bold">Rp1.000</dd>
+                <dd className="font-bold">{formatRupiah(order.admin_fee)}</dd>
               </div>
             </dl>
             <div className="flex items-end justify-between pt-4">
               <span className="text-[13px] font-bold">Total Bayar</span>
-              <span className="font-display text-[23px] font-extrabold text-[var(--jx-neon-600)]">Rp133.000</span>
+              <span className="font-display text-[23px] font-extrabold text-[var(--jx-neon-600)]">{formatRupiah(order.total)}</span>
             </div>
             <div className="mt-4 rounded-xl bg-[#f6f9f8] p-3 flex items-center justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-[11px] text-[var(--jx-muted)] font-semibold">Nomor Invoice</p>
-                <p className="font-bold text-[13px] truncate">JVX-20260913-8842</p>
+                <p className="font-bold text-[13px] truncate">{order.invoice}</p>
               </div>
-              <button className="jx-btn jx-btn-ghost text-[12px]" style={{ minHeight: 36 }} onClick={() => navigator.clipboard?.writeText("JVX-20260913-8842")}>
+              <button className="jx-btn jx-btn-ghost text-[12px]" style={{ minHeight: 36 }} onClick={() => navigator.clipboard?.writeText(order.invoice)}>
                 Salin
               </button>
             </div>
@@ -370,5 +442,13 @@ export default function PembayaranPage() {
         <a href="https://wa.me/6281234567890" className="jx-btn jx-btn-primary">Hubungi CS via WhatsApp</a>
       </section>
     </main>
+  );
+}
+
+export default function PembayaranPage() {
+  return (
+    <Suspense fallback={<main className="mx-auto max-w-[1060px] px-3 sm:px-5 py-5 pb-10"><div className="jx-panel p-10 text-center text-[var(--jx-muted)]"><p className="font-bold">Memuat...</p></div></main>}>
+      <PembayaranInner />
+    </Suspense>
   );
 }
