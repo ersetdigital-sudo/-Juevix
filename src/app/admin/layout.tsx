@@ -157,7 +157,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <button
             onClick={async () => {
               await fetch("/api/admin/auth/logout", { method: "POST" });
-              window.location.href = "/admin/login";
+              window.location.href = "/admin-login";
             }}
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold text-white/70 hover:bg-red-500/20 hover:text-red-400 transition-all w-full"
           >
