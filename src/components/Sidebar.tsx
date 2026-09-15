@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import type { Category, Platform } from "@/lib/db";
 
 function CategoryIcon({ icon }: { icon: string }) {
@@ -90,13 +94,20 @@ function CategoryIcon({ icon }: { icon: string }) {
   return icons[icon] || icons.gamepad;
 }
 
-export function Sidebar({
+function SidebarInner({
   categories,
   platforms,
 }: {
   categories: Category[];
   platforms: Platform[];
 }) {
+  const searchParams = useSearchParams();
+  const activeCategory = searchParams.get("category") || "semua";
+  const activePlatform = searchParams.get("platform") || "semua";
+
+  const filteredCategories = categories.filter((c) => c.slug !== "semua");
+  const filteredPlatforms = platforms.filter((p) => p.slug !== "semua");
+
   return (
     <aside className="hidden lg:block">
       <div className="jx-card p-3 sticky top-[80px]">
@@ -104,45 +115,65 @@ export function Sidebar({
           Kategori
         </p>
         <nav className="space-y-1">
-          {categories.map((cat, i) => (
-            <a
-              key={cat.slug}
-              href="/"
-              className={`jx-side ${i === 1 ? "is-active" : ""}`}
-            >
-              <CategoryIcon icon={cat.icon} />
-              {cat.name}
-              {i === 1 && (
-                <svg
-                  className="ml-auto"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path d="m9 6 6 6-6 6" />
-                </svg>
-              )}
-            </a>
-          ))}
+          <a
+            href="/"
+            className={`jx-side ${activeCategory === "semua" ? "is-active" : ""}`}
+          >
+            <CategoryIcon icon="home" />
+            Semua Game
+          </a>
+          {filteredCategories.map((cat) => {
+            const active = activeCategory === cat.slug;
+            return (
+              <a
+                key={cat.slug}
+                href={`/?category=${cat.slug}`}
+                className={`jx-side ${active ? "is-active" : ""}`}
+              >
+                <CategoryIcon icon={cat.icon} />
+                {cat.name}
+                {active && (
+                  <svg
+                    className="ml-auto"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="m9 6 6 6-6 6" />
+                  </svg>
+                )}
+              </a>
+            );
+          })}
         </nav>
 
         <p className="text-[11px] font-extrabold tracking-wider text-[var(--jx-muted)] px-2 pt-5 pb-2">
           Platform
         </p>
         <nav className="space-y-1">
-          {platforms.map((p, i) => (
-            <a
-              key={p.slug}
-              href="/"
-              className={`jx-side ${i === 1 ? "is-active" : ""}`}
-            >
-              <CategoryIcon icon={p.icon} />
-              {p.name}
-            </a>
-          ))}
+          <a
+            href="/"
+            className={`jx-side ${activePlatform === "semua" ? "is-active" : ""}`}
+          >
+            <CategoryIcon icon="grid" />
+            Semua Platform
+          </a>
+          {filteredPlatforms.map((p) => {
+            const active = activePlatform === p.slug;
+            return (
+              <a
+                key={p.slug}
+                href={`/?platform=${p.slug}`}
+                className={`jx-side ${active ? "is-active" : ""}`}
+              >
+                <CategoryIcon icon={p.icon} />
+                {p.name}
+              </a>
+            );
+          })}
         </nav>
 
         <div
@@ -165,5 +196,19 @@ export function Sidebar({
         </div>
       </div>
     </aside>
+  );
+}
+
+export function Sidebar({
+  categories,
+  platforms,
+}: {
+  categories: Category[];
+  platforms: Platform[];
+}) {
+  return (
+    <Suspense fallback={<aside className="hidden lg:block"><div className="jx-card p-3 w-[240px] h-[400px] animate-pulse" /></aside>}>
+      <SidebarInner categories={categories} platforms={platforms} />
+    </Suspense>
   );
 }

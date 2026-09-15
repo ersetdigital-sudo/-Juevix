@@ -16,7 +16,7 @@ export default async function HomePage() {
       <Sidebar categories={categories} platforms={platforms} />
       <main className="min-w-0">
         <HeroSlider slides={heroSlides} />
-        <GameGrid games={games} />
+        <GameGrid games={games} categories={categories} />
       </main>
     </div>
   );
