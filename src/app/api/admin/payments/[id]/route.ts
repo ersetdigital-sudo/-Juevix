@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
-const DB_COLUMNS = ["category", "name", "label", "code", "color", "sort_order"];
+const DB_COLUMNS = ["category", "name", "label", "code", "color", "sort_order", "type", "account_number", "account_name", "qris_image", "is_active", "icon"];
 
 export async function PUT(
   req: NextRequest,
@@ -10,7 +10,6 @@ export async function PUT(
   const { id } = await params;
   const body = await req.json();
 
-  // Only send columns that exist in the database
   const filtered: Record<string, unknown> = {};
   for (const key of DB_COLUMNS) {
     if (body[key] !== undefined) {
