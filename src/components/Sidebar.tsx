@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import type { Category, Platform } from "@/lib/db";
+import type { Category } from "@/lib/db";
 
 function CategoryIcon({ icon }: { icon: string }) {
   const icons: Record<string, React.ReactNode> = {
@@ -96,17 +96,13 @@ function CategoryIcon({ icon }: { icon: string }) {
 
 function SidebarInner({
   categories,
-  platforms,
 }: {
   categories: Category[];
-  platforms: Platform[];
 }) {
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("category") || "semua";
-  const activePlatform = searchParams.get("platform") || "semua";
 
   const filteredCategories = categories.filter((c) => c.slug !== "semua");
-  const filteredPlatforms = platforms.filter((p) => p.slug !== "semua");
 
   return (
     <aside className="hidden lg:block">
@@ -150,32 +146,6 @@ function SidebarInner({
           })}
         </nav>
 
-        <p className="text-[11px] font-extrabold tracking-wider text-[var(--jx-muted)] px-2 pt-5 pb-2">
-          Platform
-        </p>
-        <nav className="space-y-1">
-          <a
-            href="/"
-            className={`jx-side ${activePlatform === "semua" ? "is-active" : ""}`}
-          >
-            <CategoryIcon icon="grid" />
-            Semua Platform
-          </a>
-          {filteredPlatforms.map((p) => {
-            const active = activePlatform === p.slug;
-            return (
-              <a
-                key={p.slug}
-                href={`/?platform=${p.slug}`}
-                className={`jx-side ${active ? "is-active" : ""}`}
-              >
-                <CategoryIcon icon={p.icon} />
-                {p.name}
-              </a>
-            );
-          })}
-        </nav>
-
         <div
           className="mt-5 rounded-2xl p-4 text-center"
           style={{
@@ -201,14 +171,12 @@ function SidebarInner({
 
 export function Sidebar({
   categories,
-  platforms,
 }: {
   categories: Category[];
-  platforms: Platform[];
 }) {
   return (
     <Suspense fallback={<aside className="hidden lg:block"><div className="jx-card p-3 w-[240px] h-[400px] animate-pulse" /></aside>}>
-      <SidebarInner categories={categories} platforms={platforms} />
+      <SidebarInner categories={categories} />
     </Suspense>
   );
 }
