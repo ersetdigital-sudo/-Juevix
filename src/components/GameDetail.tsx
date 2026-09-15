@@ -25,7 +25,7 @@ const faqData = [
   },
   {
     q: "Salah memasukkan User ID, bisa direfund?",
-    a: "Kalau diamond sudah terkirim ke ID yang salah, transaksi tidak bisa dibatalkan. Makanya selalu klik Cek Nickname sebelum bayar.",
+    a: "Kalau diamond sudah terkirim ke ID yang salah, transaksi tidak bisa dibatalkan. Makanya pastikan User ID dan Server ID sudah benar sebelum bayar.",
   },
   {
     q: "Metode pembayaran apa saja yang tersedia?",
@@ -46,7 +46,7 @@ const reviews = [
     name: "Dimas Pratama",
     initials: "DP",
     gradient: "linear-gradient(135deg,#1d4ed8,#38bdf8)",
-    text: "\"Fitur Cek Nickname ngebantu banget, jadi nggak takut salah ID. Bayar pakai QRIS langsung beres.\"",
+    text: "\"Proses top up super cepat, diamond langsung masuk. Bayar pakai QRIS langsung beres, recommended banget!\"",
     time: "5 hari lalu",
     stars: "★★★★★",
   },
@@ -81,32 +81,12 @@ export function GameDetail({ game, nominals, paymentCategories }: GameDetailProp
   const [selectedNom, setSelectedNom] = useState<number | null>(null);
   const [selectedPay, setSelectedPay] = useState<string>("");
   const [ordering, setOrdering] = useState(false);
-  const [nickResult, setNickResult] = useState<{ show: boolean; text: string; ok: boolean }>({
-    show: false,
-    text: "",
-    ok: false,
-  });
 
   const ADMIN = 1000;
   const nom = nominals.find((n) => n.price === selectedNom);
 
   const subtotal = selectedNom ?? 0;
   const total = subtotal > 0 ? subtotal + ADMIN : 0;
-
-  function checkNickname() {
-    if (!userId.trim()) {
-      setNickResult({ show: true, text: "Isi User ID dulu ya.", ok: false });
-      return;
-    }
-    setNickResult({ show: true, text: "Mengecek nickname...", ok: false });
-    setTimeout(() => {
-      setNickResult({
-        show: true,
-        text: "Nickname ditemukan: JuevixPlayer" + userId.slice(-3),
-        ok: true,
-      });
-    }, 700);
-  }
 
   async function handleOrder() {
     if (!nom || !selectedPay || !userId.trim() || ordering) return;
@@ -120,7 +100,6 @@ export function GameDetail({ game, nominals, paymentCategories }: GameDetailProp
           game_slug: game.slug,
           user_id: userId,
           server_id: serverId,
-          nickname: nickResult.ok ? nickResult.text.replace("Nickname ditemukan: ", "") : null,
           product_label: nom.label,
           price: nom.price,
           admin_fee: ADMIN,
@@ -222,18 +201,6 @@ export function GameDetail({ game, nominals, paymentCategories }: GameDetailProp
                 />
               </div>
             </div>
-            <button type="button" onClick={checkNickname} className="jx-btn jx-btn-ghost mt-3">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="7" />
-                <path d="m20 20-3.5-3.5" />
-              </svg>
-              Cek Nickname
-            </button>
-            {nickResult.show && (
-              <p className={`mt-2 text-sm font-semibold ${nickResult.ok ? "text-emerald-600" : "text-red-600"}`}>
-                {nickResult.text}
-              </p>
-            )}
             <p className="text-[12px] text-[var(--jx-muted)] mt-3 leading-relaxed">
               Cara lihat ID: buka game → klik avatar di pojok kiri atas → ID tampil di bawah nama.
               Contoh <b>12345678 (2145)</b> → User ID 12345678, Server ID 2145.
@@ -381,7 +348,7 @@ export function GameDetail({ game, nominals, paymentCategories }: GameDetailProp
         <p className="text-[13px] text-[var(--jx-muted)] mb-4">Cuma 4 langkah, kurang dari satu menit.</p>
         <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
           {[
-            { title: "Masukkan User ID", desc: "Isi User ID dan Server ID, lalu klik Cek Nickname untuk memastikan akun benar.", icon: "user" },
+            { title: "Masukkan User ID", desc: "Isi User ID dan Server ID dengan benar sesuai panduan di atas.", icon: "user" },
             { title: "Pilih Nominal", desc: "Pilih jumlah diamond atau paket yang kamu butuhkan. Cek badge promo untuk bonus ekstra.", icon: "diamond" },
             { title: "Bayar", desc: "Pilih QRIS, e-wallet, virtual account, atau minimarket. Selesaikan pembayaran.", icon: "card" },
             { title: "Diamond Masuk", desc: "Diamond otomatis masuk dalam hitungan detik. Cek status kapan saja di Cek Transaksi.", icon: "check" },
