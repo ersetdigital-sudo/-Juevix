@@ -1,15 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
+const DB_COLUMNS = ["category", "name", "label", "code", "color", "sort_order"];
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   const body = await req.json();
+
+  // Only send columns that exist in the database
+  const filtered: Record<string, unknown> = {};
+  for (const key of DB_COLUMNS) {
+    if (body[key] !== undefined) {
+      filtered[key] = body[key];
+    }
+  }
+
   const { data, error } = await supabaseAdmin
     .from("payment_methods")
-    .update(body)
+    .update(filtered)
     .eq("id", id)
     .select()
     .single();

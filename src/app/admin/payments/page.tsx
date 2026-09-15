@@ -80,18 +80,13 @@ export default function AdminPayments() {
     if (formType === "transfer" && !formAccountNumber.trim()) { showToast("error", "Nomor rekening wajib diisi"); return; }
 
     setSaving(true);
+    // Only send fields that exist in the database
     const payload = {
       name: formName.trim(),
       label: formName.trim(),
-      type: formType,
       category: autoCategory(formType),
       code: autoCode(formName),
       color: autoColor(formType),
-      is_active: formActive,
-      account_number: formType === "transfer" ? formAccountNumber || null : null,
-      account_name: formType === "transfer" ? formAccountName || null : null,
-      qris_image: formType === "qris" ? formQrisImage || null : null,
-      icon: null,
     };
     try {
       const url = editId ? `/api/admin/payments/${editId}` : "/api/admin/payments";
