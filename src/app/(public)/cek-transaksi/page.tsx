@@ -153,14 +153,17 @@ export default function CekTransaksiPage() {
 
             {/* Detail */}
             <div className="pt-5 grid sm:grid-cols-2 gap-x-6 gap-y-4">
-              {[
-                ["Game", order.game_name],
-                order.nickname && ["Nickname", order.nickname],
-                ["User ID", order.user_id],
-                order.server_id && ["Server ID", order.server_id],
-                ["Produk", order.product_label],
-                ["Metode Pembayaran", order.payment_method],
-              ].filter(Boolean).map(([label, value]) => (
+              {(() => {
+                const fields: [string, string][] = [
+                  ["Game", order.game_name],
+                  ["User ID", order.user_id],
+                  ["Produk", order.product_label],
+                  ["Metode Pembayaran", order.payment_method],
+                ];
+                if (order.server_id) fields.splice(2, 0, ["Server ID", order.server_id]);
+                if (order.nickname) fields.splice(1, 0, ["Nickname", order.nickname]);
+                return fields;
+              })().map(([label, value]) => (
                 <div key={label}>
                   <p className="text-[12px] text-[var(--jx-muted)] font-semibold">{label}</p>
                   <p className="font-bold text-[14px] mt-0.5">{value}</p>
