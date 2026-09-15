@@ -2,32 +2,66 @@
 
 import { useState } from "react";
 
+interface OrderData {
+  invoice: string;
+  game_name: string;
+  game_slug: string;
+  user_id: string;
+  server_id: string;
+  nickname: string | null;
+  product_label: string;
+  price: number;
+  admin_fee: number;
+  total: number;
+  payment_method: string;
+  status: string;
+  created_at: string;
+}
+
+function formatRupiah(n: number) {
+  return "Rp" + n.toLocaleString("id-ID");
+}
+
 export default function CekTransaksiPage() {
   const [invoice, setInvoice] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showEmpty, setShowEmpty] = useState(true);
   const [showNotFound, setShowNotFound] = useState(false);
-  const [showResult, setShowResult] = useState(false);
-  const [resultInvoice, setResultInvoice] = useState("");
+  const [order, setOrder] = useState<OrderData | null>(null);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const v = invoice.trim();
     setShowEmpty(false);
     setShowNotFound(false);
-    setShowResult(false);
+    setOrder(null);
 
     if (!v) {
       setShowEmpty(true);
       return;
     }
 
-    if (/^JVX/i.test(v)) {
-      setResultInvoice(v.toUpperCase());
-      setShowResult(true);
-    } else {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(v.toUpperCase())}`);
+      const data = await res.json();
+      if (data.error) {
+        setShowNotFound(true);
+      } else {
+        setOrder(data);
+      }
+    } catch {
       setShowNotFound(true);
     }
+    setLoading(false);
   }
+
+  const statusBadge = (s: string) => {
+    if (s === "paid" || s === "completed") return <span className="jx-badge jx-ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M20 6 9 17l-5-5" /></svg>{" "}Berhasil</span>;
+    if (s === "failed" || s === "cancelled") return <span className="jx-badge jx-fail"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="m6 6 12 12M18 6 6 18" /></svg>{" "}Gagal</span>;
+    if (s === "processing") return <span className="jx-badge jx-wait">Diproses</span>;
+    return <span className="jx-badge jx-wait">Menunggu</span>;
+  };
 
   return (
     <main className="mx-auto max-w-[1200px] px-3 sm:px-5 py-4 pb-28 lg:pb-8">
@@ -52,17 +86,14 @@ export default function CekTransaksiPage() {
             value={invoice}
             onChange={(e) => setInvoice(e.target.value)}
           />
-          <button type="submit" className="jx-btn jx-btn-primary" style={{ minHeight: 50 }}>
+          <button type="submit" disabled={loading} className="jx-btn jx-btn-primary" style={{ minHeight: 50 }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3.5-3.5" />
             </svg>
-            Cek Transaksi
+            {loading ? "Mencari..." : "Cek Transaksi"}
           </button>
         </form>
-        <p className="text-white/45 text-[11px] mt-3">
-          Coba demo: ketik <b className="text-[var(--jx-neon)]">JVX-20260913-8842</b>
-        </p>
       </section>
 
       {/* Empty State */}
@@ -82,7 +113,7 @@ export default function CekTransaksiPage() {
             Masukkan nomor invoice untuk melihat status transaksi kamu. Nomor invoice ada di email konfirmasi atau halaman pembayaran.
           </p>
           <div className="flex flex-wrap gap-2 justify-center mt-5">
-            <a href="/game/mobile-legends" className="jx-btn jx-btn-ghost">Top Up Game</a>
+            <a href="/" className="jx-btn jx-btn-ghost">Top Up Game</a>
             <a href="https://wa.me/6281234567890" className="jx-btn jx-btn-soft">Hubungi CS</a>
           </div>
         </section>
@@ -106,72 +137,30 @@ export default function CekTransaksiPage() {
       )}
 
       {/* Result */}
-      {showResult && (
+      {order && (
         <section className="mt-5 grid lg:grid-cols-[minmax(0,1fr)_340px] gap-4 items-start">
           <div className="jx-panel p-5 sm:p-6 min-w-0">
             <div className="flex flex-wrap items-start justify-between gap-3 pb-5 border-b border-[var(--jx-line)]">
               <div>
                 <p className="text-[12px] text-[var(--jx-muted)] font-semibold">Nomor Invoice</p>
-                <p className="font-display font-extrabold text-[19px] mt-0.5">{resultInvoice}</p>
-                <p className="text-[12px] text-[var(--jx-muted)] mt-1">13 September 2026 • 20:41 WIB</p>
+                <p className="font-display font-extrabold text-[19px] mt-0.5">{order.invoice}</p>
+                <p className="text-[12px] text-[var(--jx-muted)] mt-1">
+                  {new Date(order.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+                </p>
               </div>
-              <span className="jx-badge jx-ok text-[12px] py-2 px-3">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                  <path d="M20 6 9 17l-5-5" />
-                </svg>{" "}
-                Berhasil
-              </span>
-            </div>
-
-            {/* Timeline */}
-            <div className="py-6 border-b border-[var(--jx-line)]">
-              <p className="text-[12px] font-extrabold tracking-wider text-[var(--jx-muted)] mb-5">TIMELINE STATUS</p>
-
-              {/* Desktop */}
-              <ol className="hidden sm:grid grid-cols-3 relative">
-                {["Menunggu Pembayaran", "Diproses", "Selesai"].map((step, i) => (
-                  <li key={i} className="relative text-center">
-                    {i < 2 && <div className="absolute top-[14px] left-1/2 w-full h-[3px] bg-[var(--jx-neon)]" />}
-                    <span className="relative z-10 w-8 h-8 mx-auto rounded-full grid place-items-center bg-[var(--jx-neon)] text-[#04251a]">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
-                    </span>
-                    <p className="font-bold text-[13px] mt-2">{step}</p>
-                    <p className="text-[11px] text-[var(--jx-muted)]">20:4{i} WIB</p>
-                  </li>
-                ))}
-              </ol>
-
-              {/* Mobile */}
-              <ol className="sm:hidden space-y-0">
-                {["Menunggu Pembayaran", "Diproses", "Selesai"].map((step, i) => (
-                  <li key={i} className={`flex gap-3 relative ${i < 2 ? "pb-6" : ""}`}>
-                    {i < 2 && <div className="absolute left-[15px] top-8 bottom-0 w-[3px] bg-[var(--jx-neon)]" />}
-                    <span className="relative z-10 w-8 h-8 shrink-0 rounded-full grid place-items-center bg-[var(--jx-neon)] text-[#04251a]">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
-                    </span>
-                    <div>
-                      <p className="font-bold text-[13px]">{step}</p>
-                      <p className="text-[11px] text-[var(--jx-muted)]">13 Sep 2026 • 20:4{i} WIB</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+              {statusBadge(order.status)}
             </div>
 
             {/* Detail */}
             <div className="pt-5 grid sm:grid-cols-2 gap-x-6 gap-y-4">
               {[
-                ["Game", "Mobile Legends: Bang Bang"],
-                ["Nickname", "JuevixPlayer678"],
-                ["User ID", "12345678"],
-                ["Server ID", "2145"],
-                ["Produk", "500 Diamond"],
-                ["Metode Pembayaran", "QRIS"],
-              ].map(([label, value]) => (
+                ["Game", order.game_name],
+                order.nickname && ["Nickname", order.nickname],
+                ["User ID", order.user_id],
+                order.server_id && ["Server ID", order.server_id],
+                ["Produk", order.product_label],
+                ["Metode Pembayaran", order.payment_method],
+              ].filter(Boolean).map(([label, value]) => (
                 <div key={label}>
                   <p className="text-[12px] text-[var(--jx-muted)] font-semibold">{label}</p>
                   <p className="font-bold text-[14px] mt-0.5">{value}</p>
@@ -183,22 +172,22 @@ export default function CekTransaksiPage() {
               <dl className="text-[13px] space-y-2">
                 <div className="flex justify-between">
                   <dt className="text-[var(--jx-muted)]">Subtotal</dt>
-                  <dd className="font-bold">Rp132.000</dd>
+                  <dd className="font-bold">{formatRupiah(order.price)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-[var(--jx-muted)]">Biaya admin</dt>
-                  <dd className="font-bold">Rp1.000</dd>
+                  <dd className="font-bold">{formatRupiah(order.admin_fee)}</dd>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-[var(--jx-line)]">
                   <dt className="font-bold">Total Bayar</dt>
-                  <dd className="font-display font-extrabold text-[18px] text-[var(--jx-neon-600)]">Rp133.000</dd>
+                  <dd className="font-display font-extrabold text-[18px] text-[var(--jx-neon-600)]">{formatRupiah(order.total)}</dd>
                 </div>
               </dl>
             </div>
 
             <div className="flex flex-wrap gap-2 mt-5">
               <a href="https://wa.me/6281234567890" className="jx-btn jx-btn-primary">Hubungi CS</a>
-              <a href="/game/mobile-legends" className="jx-btn jx-btn-ghost">Beli Lagi</a>
+              <a href={`/${order.game_slug}`} className="jx-btn jx-btn-ghost">Beli Lagi</a>
             </div>
           </div>
 
