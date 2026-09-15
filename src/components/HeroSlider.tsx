@@ -4,9 +4,9 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import Link from "next/link";
 import Image from "next/image";
-import { heroSlides } from "@/data/games";
+import type { HeroSlide } from "@/lib/db";
 
-export function HeroSlider() {
+export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   return (
     <section className="rounded-[20px] overflow-hidden relative jx-heroslider">
       <Swiper
@@ -16,8 +16,8 @@ export function HeroSlider() {
         pagination={{ clickable: true }}
         className="h-full"
       >
-        {heroSlides.map((slide, i) => (
-          <SwiperSlide key={i}>
+        {slides.map((slide, i) => (
+          <SwiperSlide key={slide.id}>
             <Link href={slide.href} className="block">
               <Image
                 src={slide.image}

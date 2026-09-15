@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { games } from "@/data/games";
+import type { Game } from "@/lib/db";
 
-export function GameGrid() {
+export function GameGrid({ games }: { games: Game[] }) {
   return (
     <section className="mt-6">
       <div className="flex items-end justify-between mb-3">

@@ -1,6 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
-import { categories, platforms } from "@/data/games";
+import type { Category, Platform } from "@/lib/db";
 
 function CategoryIcon({ icon }: { icon: string }) {
   const icons: Record<string, React.ReactNode> = {
@@ -91,7 +90,13 @@ function CategoryIcon({ icon }: { icon: string }) {
   return icons[icon] || icons.gamepad;
 }
 
-export function Sidebar() {
+export function Sidebar({
+  categories,
+  platforms,
+}: {
+  categories: Category[];
+  platforms: Platform[];
+}) {
   return (
     <aside className="hidden lg:block">
       <div className="jx-card p-3 sticky top-[80px]">
@@ -147,8 +152,11 @@ export function Sidebar() {
             border: "1px solid #d9f2e6",
           }}
         >
-          <div className="text-2xl">💎</div>
-          <p className="font-display font-extrabold text-[13px] mt-1 leading-snug">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="mx-auto">
+            <path d="M12 3 4 9l8 12 8-12-8-6Z" fill="#00D97E" />
+            <path d="M12 3 4 9h16l-8-6Z" fill="#8bffd2" />
+          </svg>
+          <p className="font-display font-extrabold text-[13px] mt-2 leading-snug">
             Top Up Lebih Mudah dan Aman
           </p>
           <p className="text-[11px] text-[var(--jx-muted)] mt-1 leading-snug">
