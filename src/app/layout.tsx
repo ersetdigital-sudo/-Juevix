@@ -1,9 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Sora } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { BottomNav } from "@/components/BottomNav";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -56,12 +53,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className={`${plusJakarta.variable} ${sora.variable}`}>
-      <body>
-        <Header />
-        {children}
-        <Footer />
-        <BottomNav />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
