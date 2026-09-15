@@ -1,0 +1,312 @@
+@import "tailwindcss";
+@import "swiper/css";
+@import "swiper/css/pagination";
+
+:root {
+  --jx-green-900: #04251a;
+  --jx-green-800: #073a28;
+  --jx-green-700: #0a5238;
+  --jx-neon: #00D97E;
+  --jx-neon-600: #00b96b;
+  --jx-neon-soft: #eafaf2;
+  --jx-ink: #12241d;
+  --jx-muted: #7b8a86;
+  --jx-line: #e9eeec;
+  --jx-bg: #eef3f1;
+
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-display: "Sora", "Plus Jakarta Sans", sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--jx-bg);
+  color: var(--jx-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.jx-card {
+  background: #fff;
+  border: 1px solid var(--jx-line);
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(18, 36, 29, 0.04), 0 12px 28px -18px rgba(18, 36, 29, 0.25);
+}
+
+.jx-panel {
+  background: #fff;
+  border: 1px solid var(--jx-line);
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(18, 36, 29, 0.04), 0 14px 34px -22px rgba(18, 36, 29, 0.3);
+}
+
+.jx-hero {
+  background:
+    radial-gradient(900px 460px at 78% 6%, rgba(0, 217, 126, 0.34), transparent 60%),
+    radial-gradient(620px 420px at 4% 96%, rgba(0, 217, 126, 0.14), transparent 62%),
+    linear-gradient(125deg, #04251a 0%, #07382a 46%, #0a5238 100%);
+}
+
+.jx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: all 0.16s ease;
+  cursor: pointer;
+}
+
+.jx-btn-primary {
+  background: var(--jx-neon);
+  color: #04251a;
+  box-shadow: 0 10px 22px -10px rgba(0, 217, 126, 0.9);
+}
+.jx-btn-primary:hover {
+  background: #00f08c;
+  transform: translateY(-1px);
+}
+
+.jx-btn-dark {
+  background: var(--jx-green-900);
+  color: #fff;
+}
+.jx-btn-dark:hover {
+  background: var(--jx-green-700);
+}
+
+.jx-btn-ghost {
+  background: #fff;
+  color: var(--jx-ink);
+  border: 1px solid var(--jx-line);
+}
+.jx-btn-ghost:hover {
+  border-color: var(--jx-neon);
+  color: var(--jx-neon-600);
+  background: var(--jx-neon-soft);
+}
+
+.jx-btn-soft {
+  background: var(--jx-neon-soft);
+  color: #0a5238;
+  border: 1px solid #d4f2e4;
+}
+.jx-btn-soft:hover {
+  background: #d8f6e8;
+}
+
+.jx-input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--jx-line);
+  border-radius: 12px;
+  padding: 0 0.9rem;
+  background: #fff;
+  font-size: 0.9rem;
+  color: var(--jx-ink);
+  transition: all 0.15s ease;
+}
+.jx-input:focus {
+  outline: none;
+  border-color: var(--jx-neon);
+  box-shadow: 0 0 0 4px rgba(0, 217, 126, 0.15);
+}
+.jx-input::placeholder {
+  color: #9fada9;
+}
+
+.jx-side {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #3f504b;
+  min-height: 44px;
+  transition: all 0.15s ease;
+}
+.jx-side:hover {
+  background: #f4f8f6;
+  color: var(--jx-ink);
+}
+.jx-side.is-active {
+  background: var(--jx-neon-soft);
+  color: #0a5238;
+  font-weight: 700;
+}
+.jx-side svg {
+  flex: none;
+  opacity: 0.75;
+}
+
+.jx-navlink {
+  position: relative;
+  padding: 0.35rem 0.1rem;
+  font-weight: 600;
+  font-size: 0.86rem;
+  color: #5b6b66;
+  white-space: nowrap;
+}
+.jx-navlink:hover {
+  color: var(--jx-ink);
+}
+.jx-navlink.is-active {
+  color: var(--jx-ink);
+  font-weight: 700;
+}
+.jx-navlink.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  height: 2.5px;
+  border-radius: 3px;
+  background: var(--jx-neon);
+}
+
+.jx-nom {
+  position: relative;
+  text-align: left;
+  border: 1.5px solid var(--jx-line);
+  border-radius: 14px;
+  background: #fff;
+  padding: 0.8rem 0.85rem;
+  min-height: 78px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.jx-nom:hover {
+  border-color: var(--jx-neon);
+  transform: translateY(-2px);
+}
+.jx-nom.is-active {
+  border-color: var(--jx-neon);
+  background: var(--jx-neon-soft);
+  box-shadow: 0 0 0 3px rgba(0, 217, 126, 0.15);
+}
+
+.jx-pay {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  text-align: left;
+  border: 1.5px solid var(--jx-line);
+  border-radius: 12px;
+  background: #fff;
+  padding: 0.7rem 0.8rem;
+  min-height: 52px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.jx-pay:hover {
+  border-color: var(--jx-neon);
+}
+.jx-pay.is-active {
+  border-color: var(--jx-neon);
+  background: var(--jx-neon-soft);
+}
+
+.jx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.7rem;
+  padding: 0.3rem 0.6rem;
+  line-height: 1;
+}
+.jx-ok {
+  background: #e6faf1;
+  color: #047857;
+}
+.jx-wait {
+  background: #fff4e0;
+  color: #b45309;
+}
+.jx-fail {
+  background: #ffe8e8;
+  color: #b91c1c;
+}
+
+details.jx-acc {
+  border: 1px solid var(--jx-line);
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+}
+details.jx-acc + details.jx-acc {
+  margin-top: 0.6rem;
+}
+details.jx-acc > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.95rem 1.05rem;
+  font-weight: 700;
+  font-size: 0.92rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+}
+details.jx-acc > summary::-webkit-details-marker {
+  display: none;
+}
+details.jx-acc > summary .jx-chev {
+  transition: transform 0.2s ease;
+  flex: none;
+}
+details.jx-acc[open] > summary .jx-chev {
+  transform: rotate(180deg);
+}
+details.jx-acc > div {
+  padding: 0 1.05rem 1.05rem;
+  color: var(--jx-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.jx-stars {
+  color: #f5a524;
+  letter-spacing: -1px;
+}
+
+.jx-bottomnav a {
+  min-height: 56px;
+}
+
+@media (max-width: 1023px) {
+  .jx-sticky {
+    position: static !important;
+  }
+}
+
+.jx-heroslider .swiper-pagination {
+  bottom: 12px !important;
+}
+.jx-heroslider .swiper-pagination-bullet {
+  background: #ffffff;
+  opacity: 0.45;
+  width: 8px;
+  height: 8px;
+}
+.jx-heroslider .swiper-pagination-bullet-active {
+  background: #00D97E;
+  opacity: 1;
+  width: 22px;
+  border-radius: 99px;
+}

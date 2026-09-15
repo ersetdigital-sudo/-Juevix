@@ -1,0 +1,20 @@
+▲ Next.js 16.3.5 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://26.220.227.219:3001
+✓ Ready in 1491ms
+✓ Running next.config.ts took 193ms
+
+[browser] Image with src "/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /game/mobile-legends 200 in 3.5s (next.js: 2.7s, application-code: 784ms)
+[browser] Image with src "/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET /game/mobile-legends 200 in 551ms (next.js: 46ms, application-code: 505ms)
+[browser] Image with src "/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET / 200 in 373ms (next.js: 108ms, application-code: 265ms)
+[browser] Image with src "/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+ GET /cek-transaksi 200 in 2.0s (next.js: 1783ms, application-code: 237ms)
+ GET /cek-transaksi 200 in 812ms (next.js: 194ms, application-code: 618ms)
+ GET /cek-transaksi 200 in 435ms (next.js: 69ms, application-code: 365ms)
