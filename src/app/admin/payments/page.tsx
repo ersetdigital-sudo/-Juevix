@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import { useToast } from "@/components/admin/Toast";
 
 interface Payment {
   id: number;
@@ -34,6 +36,7 @@ const empty: Omit<Payment, "id"> = {
 };
 
 export default function AdminPayments() {
+  const { showToast } = useToast();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<Omit<Payment, "id">>(empty);
@@ -42,6 +45,7 @@ export default function AdminPayments() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Payment | null>(null);
 
   const load = () => {
     fetch("/api/admin/payments")
@@ -62,7 +66,7 @@ export default function AdminPayments() {
     if (data.url) {
       setForm({ ...form, qris_image: data.url });
     } else {
-      alert(data.error || "Upload gagal");
+      showToast("error", data.error || "Upload gagal");
     }
   };
 
@@ -75,30 +79,37 @@ export default function AdminPayments() {
       qris_image: form.qris_image || null,
       icon: form.icon || null,
     };
-    if (editId) {
-      await fetch(`/api/admin/payments/${editId}`, {
-        method: "PUT",
+    try {
+      const url = editId ? `/api/admin/payments/${editId}` : "/api/admin/payments";
+      const method = editId ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-    } else {
-      await fetch("/api/admin/payments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      if (!res.ok) throw new Error("Gagal menyimpan");
+      showToast("success", editId ? "Perubahan berhasil disimpan" : "Metode pembayaran berhasil ditambahkan");
+      setForm(empty);
+      setEditId(null);
+      setShowForm(false);
+      load();
+    } catch {
+      showToast("error", "Gagal menyimpan metode pembayaran");
     }
-    setForm(empty);
-    setEditId(null);
-    setShowForm(false);
-    load();
     setSaving(false);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Yakin hapus metode pembayaran ini?")) return;
-    await fetch(`/api/admin/payments/${id}`, { method: "DELETE" });
-    load();
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      const res = await fetch(`/api/admin/payments/${deleteTarget.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Gagal menghapus");
+      showToast("success", "Metode pembayaran berhasil dihapus");
+      load();
+    } catch {
+      showToast("error", "Gagal menghapus metode pembayaran");
+    }
+    setDeleteTarget(null);
   };
 
   const handleEdit = (p: Payment) => {
@@ -144,6 +155,14 @@ export default function AdminPayments() {
 
   return (
     <div className="space-y-6">
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Hapus Metode Pembayaran?"
+        description={`"${deleteTarget?.name}" akan dihapus permanen dan tidak bisa dikembalikan.`}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display text-2xl font-extrabold">Payments</h2>
@@ -324,7 +343,7 @@ export default function AdminPayments() {
                     <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${m.is_active ? "translate-x-5" : ""}`} />
                   </button>
                   <button onClick={() => handleEdit(m)} className="text-blue-600 hover:underline font-semibold text-[12px]">Edit</button>
-                  <button onClick={() => handleDelete(m.id)} className="text-red-500 hover:underline font-semibold text-[12px]">Hapus</button>
+                  <button onClick={() => setDeleteTarget(m)} className="text-red-500 hover:underline font-semibold text-[12px]">Hapus</button>
                 </div>
               </div>
             ))}

@@ -88,11 +88,14 @@ const nav = [
   },
 ];
 
+import { ToastProvider } from "@/components/admin/Toast";
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   return (
+    <ToastProvider>
     <div className="min-h-screen bg-[#f0f4f3] flex">
       {/* Sidebar */}
       <aside
@@ -204,5 +207,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <main className="p-5">{children}</main>
       </div>
     </div>
+    </ToastProvider>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import { useToast } from "@/components/admin/Toast";
 
 interface Category {
   id: number;
@@ -29,12 +31,14 @@ const empty: Omit<Category, "id"> = {
 };
 
 export default function AdminCategories() {
+  const { showToast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<Omit<Category, "id">>(empty);
   const [editId, setEditId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
 
   const load = () => {
     fetch("/api/admin/categories")
@@ -47,39 +51,41 @@ export default function AdminCategories() {
 
   const handleSubmit = async () => {
     setSaving(true);
-    if (editId) {
-      await fetch(`/api/admin/categories/${editId}`, {
-        method: "PUT",
+    try {
+      const url = editId ? `/api/admin/categories/${editId}` : "/api/admin/categories";
+      const method = editId ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-    } else {
-      await fetch("/api/admin/categories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      if (!res.ok) throw new Error("Gagal");
+      showToast("success", editId ? "Perubahan berhasil disimpan" : "Kategori berhasil ditambahkan");
+      setForm(empty);
+      setEditId(null);
+      setShowForm(false);
+      load();
+    } catch {
+      showToast("error", "Gagal menyimpan kategori");
     }
-    setForm(empty);
-    setEditId(null);
-    setShowForm(false);
-    load();
     setSaving(false);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Yakin hapus kategori ini?")) return;
-    await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
-    load();
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      const res = await fetch(`/api/admin/categories/${deleteTarget.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Gagal");
+      showToast("success", "Kategori berhasil dihapus");
+      load();
+    } catch {
+      showToast("error", "Gagal menghapus kategori");
+    }
+    setDeleteTarget(null);
   };
 
   const handleEdit = (c: Category) => {
-    setForm({
-      name: c.name,
-      slug: c.slug,
-      icon: c.icon,
-      sort_order: c.sort_order,
-    });
+    setForm({ name: c.name, slug: c.slug, icon: c.icon, sort_order: c.sort_order });
     setEditId(c.id);
     setShowForm(true);
   };
@@ -89,6 +95,14 @@ export default function AdminCategories() {
 
   return (
     <div className="space-y-6">
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Hapus Kategori?"
+        description={`"${deleteTarget?.name}" akan dihapus permanen dan tidak bisa dikembalikan.`}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="font-display text-2xl font-extrabold">Kategori</h2>
@@ -182,7 +196,7 @@ export default function AdminCategories() {
                 <td className="px-5 py-3 text-gray-500">{c.sort_order}</td>
                 <td className="px-5 py-3 text-right space-x-2">
                   <button onClick={() => handleEdit(c)} className="text-blue-600 hover:underline font-semibold">Edit</button>
-                  <button onClick={() => handleDelete(c.id)} className="text-red-500 hover:underline font-semibold">Hapus</button>
+                  <button onClick={() => setDeleteTarget(c)} className="text-red-500 hover:underline font-semibold">Hapus</button>
                 </td>
               </tr>
             ))}

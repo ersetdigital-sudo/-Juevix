@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import { useToast } from "@/components/admin/Toast";
 
 interface Nominal {
   id: number;
@@ -29,6 +31,7 @@ const empty: Omit<Nominal, "id"> = {
 };
 
 export default function AdminNominals() {
+  const { showToast } = useToast();
   const [nominals, setNominals] = useState<Nominal[]>([]);
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,6 +40,7 @@ export default function AdminNominals() {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [filter, setFilter] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<Nominal | null>(null);
 
   const load = () => {
     Promise.all([
@@ -54,41 +58,44 @@ export default function AdminNominals() {
 
   const handleSubmit = async () => {
     setSaving(true);
-    if (editId) {
-      await fetch(`/api/admin/nominals/${editId}`, {
-        method: "PUT",
+    try {
+      const url = editId ? `/api/admin/nominals/${editId}` : "/api/admin/nominals";
+      const method = editId ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-    } else {
-      await fetch("/api/admin/nominals", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      if (!res.ok) throw new Error("Gagal");
+      showToast("success", editId ? "Perubahan berhasil disimpan" : "Nominal berhasil ditambahkan");
+      setForm(empty);
+      setEditId(null);
+      setShowForm(false);
+      load();
+    } catch {
+      showToast("error", "Gagal menyimpan nominal");
     }
-    setForm(empty);
-    setEditId(null);
-    setShowForm(false);
-    load();
     setSaving(false);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Yakin hapus nominal ini?")) return;
-    await fetch(`/api/admin/nominals/${id}`, { method: "DELETE" });
-    load();
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      const res = await fetch(`/api/admin/nominals/${deleteTarget.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Gagal");
+      showToast("success", "Nominal berhasil dihapus");
+      load();
+    } catch {
+      showToast("error", "Gagal menghapus nominal");
+    }
+    setDeleteTarget(null);
   };
 
   const handleEdit = (n: Nominal) => {
     setForm({
-      game_slug: n.game_slug,
-      label: n.label,
-      price: n.price,
-      badge: n.badge || "",
-      badge_type: n.badge_type,
-      original_price: n.original_price,
-      sort_order: n.sort_order,
+      game_slug: n.game_slug, label: n.label, price: n.price,
+      badge: n.badge || "", badge_type: n.badge_type,
+      original_price: n.original_price, sort_order: n.sort_order,
     });
     setEditId(n.id);
     setShowForm(true);
@@ -98,6 +105,14 @@ export default function AdminNominals() {
 
   return (
     <div className="space-y-6">
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Hapus Nominal?"
+        description={`"${deleteTarget?.label}" akan dihapus permanen dan tidak bisa dikembalikan.`}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="font-display text-2xl font-extrabold">Nominals</h2>
@@ -112,18 +127,13 @@ export default function AdminNominals() {
       </div>
 
       <div className="flex gap-2 flex-wrap">
-        <button
-          onClick={() => setFilter("")}
-          className={`px-3 py-1.5 rounded-lg text-[12px] font-bold border transition ${!filter ? "bg-[#04251a] text-white border-[#04251a]" : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"}`}
-        >
+        <button onClick={() => setFilter("")}
+          className={`px-3 py-1.5 rounded-lg text-[12px] font-bold border transition ${!filter ? "bg-[#04251a] text-white border-[#04251a]" : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"}`}>
           Semua
         </button>
         {games.map((g) => (
-          <button
-            key={g.slug}
-            onClick={() => setFilter(g.slug)}
-            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold border transition ${filter === g.slug ? "bg-[#04251a] text-white border-[#04251a]" : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"}`}
-          >
+          <button key={g.slug} onClick={() => setFilter(g.slug)}
+            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold border transition ${filter === g.slug ? "bg-[#04251a] text-white border-[#04251a]" : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"}`}>
             {g.name}
           </button>
         ))}
@@ -212,7 +222,7 @@ export default function AdminNominals() {
                 <td className="px-5 py-3 text-gray-500">{n.sort_order}</td>
                 <td className="px-5 py-3 text-right space-x-2">
                   <button onClick={() => handleEdit(n)} className="text-blue-600 hover:underline font-semibold">Edit</button>
-                  <button onClick={() => handleDelete(n.id)} className="text-red-500 hover:underline font-semibold">Hapus</button>
+                  <button onClick={() => setDeleteTarget(n)} className="text-red-500 hover:underline font-semibold">Hapus</button>
                 </td>
               </tr>
             ))}
