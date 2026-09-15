@@ -116,7 +116,7 @@ export default function CekTransaksiPage() {
           </p>
           <div className="flex flex-wrap gap-2 justify-center mt-5">
             <a href="/" className="jx-btn jx-btn-ghost">Top Up Game</a>
-            <a href="https://wa.me/${whatsapp || "6281234567890"}" className="jx-btn jx-btn-soft">Hubungi CS</a>
+            <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-soft">Hubungi CS</a>
           </div>
         </section>
       )}
@@ -134,7 +134,7 @@ export default function CekTransaksiPage() {
           <p className="text-[13px] text-[var(--jx-muted)] mt-2 max-w-md mx-auto leading-relaxed">
             Pastikan nomor invoice yang kamu masukkan benar (format <b>JVX-XXXXXXXX-XXXX</b>). Kalau masih gagal, hubungi CS kami.
           </p>
-          <a href="https://wa.me/${whatsapp || "6281234567890"}" className="jx-btn jx-btn-primary mt-5">Hubungi CS</a>
+          <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-primary mt-5">Hubungi CS</a>
         </section>
       )}
 
@@ -191,7 +191,7 @@ export default function CekTransaksiPage() {
             </div>
 
             <div className="flex flex-wrap gap-2 mt-5">
-              <a href="https://wa.me/${whatsapp || "6281234567890"}" className="jx-btn jx-btn-primary">Hubungi CS</a>
+              <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-primary">Hubungi CS</a>
               <a href={`/${order.game_slug}`} className="jx-btn jx-btn-ghost">Beli Lagi</a>
             </div>
           </div>
@@ -221,7 +221,7 @@ export default function CekTransaksiPage() {
               <p className="text-[13px] text-[var(--jx-muted)] leading-relaxed">
                 Ada kendala dengan pesanan kamu? CS Juevix online 24 jam.
               </p>
-              <a href="https://wa.me/${whatsapp || "6281234567890"}" className="jx-btn jx-btn-soft w-full mt-3">
+              <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-soft w-full mt-3">
                 Chat WhatsApp
               </a>
             </div>
