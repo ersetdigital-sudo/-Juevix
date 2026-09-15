@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { TopupNominal, PaymentCategory } from "@/lib/db";
 
 function formatRupiah(n: number) {
@@ -74,10 +75,12 @@ interface GameDetailProps {
 }
 
 export function GameDetail({ game, nominals, paymentCategories }: GameDetailProps) {
+  const router = useRouter();
   const [userId, setUserId] = useState("");
   const [serverId, setServerId] = useState("");
   const [selectedNom, setSelectedNom] = useState<number | null>(null);
   const [selectedPay, setSelectedPay] = useState<string>("");
+  const [ordering, setOrdering] = useState(false);
   const [nickResult, setNickResult] = useState<{ show: boolean; text: string; ok: boolean }>({
     show: false,
     text: "",
@@ -103,6 +106,36 @@ export function GameDetail({ game, nominals, paymentCategories }: GameDetailProp
         ok: true,
       });
     }, 700);
+  }
+
+  async function handleOrder() {
+    if (!nom || !selectedPay || !userId.trim() || ordering) return;
+    setOrdering(true);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          game_name: game.name,
+          game_slug: game.slug,
+          user_id: userId,
+          server_id: serverId,
+          nickname: nickResult.ok ? nickResult.text.replace("Nickname ditemukan: ", "") : null,
+          product_label: nom.label,
+          price: nom.price,
+          admin_fee: ADMIN,
+          total: total,
+          payment_method: selectedPay,
+        }),
+      });
+      const data = await res.json();
+      if (data.invoice) {
+        router.push(`/pembayaran?invoice=${data.invoice}`);
+      }
+    } catch {
+      alert("Gagal membuat pesanan. Coba lagi.");
+    }
+    setOrdering(false);
   }
 
   return (
@@ -327,13 +360,14 @@ export function GameDetail({ game, nominals, paymentCategories }: GameDetailProp
                 {subtotal > 0 ? formatRupiah(total) : "Rp0"}
               </span>
             </div>
-            <Link
-              href="/pembayaran"
-              className={`jx-btn jx-btn-primary w-full mt-4 ${!subtotal || !selectedPay || !userId.trim() ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+            <button
+              onClick={handleOrder}
+              disabled={!subtotal || !selectedPay || !userId.trim() || ordering}
+              className={`jx-btn jx-btn-primary w-full mt-4 ${!subtotal || !selectedPay || !userId.trim() ? "opacity-50 cursor-not-allowed" : ""}`}
               style={{ minHeight: 52 }}
             >
-              Bayar Sekarang
-            </Link>
+              {ordering ? "Memproses..." : "Bayar Sekarang"}
+            </button>
             <p className="text-[11px] text-[var(--jx-muted)] text-center mt-2.5 leading-relaxed">
               Pastikan User ID &amp; Server ID sudah benar. Diamond masuk otomatis setelah pembayaran.
             </p>

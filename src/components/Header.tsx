@@ -77,27 +77,22 @@ export function Header() {
           <div className="hidden lg:flex items-center gap-2 ml-2">
             <Link
               href="/cek-transaksi"
-              className="w-10 h-10 grid place-items-center rounded-xl border border-[var(--jx-line)] text-[#3f504b]"
-              aria-label="Pesanan"
+              className="jx-btn jx-btn-ghost text-[13px]"
+              style={{ minHeight: 40 }}
             >
               <svg
-                width="18"
-                height="18"
+                width="16"
+                height="16"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <path d="M6 7h12l-1 13H7L6 7Z" />
-                <path d="M9 7a3 3 0 0 1 6 0" />
+                <path d="M6 2h9l5 5v15H6z" />
+                <path d="M9 13h6M9 17h4" />
               </svg>
+              Cek Transaksi
             </Link>
-            <a href="#" className="jx-btn jx-btn-ghost" style={{ minHeight: 40 }}>
-              Masuk
-            </a>
-            <a href="#" className="jx-btn jx-btn-dark" style={{ minHeight: 40 }}>
-              Daftar
-            </a>
           </div>
 
           <button
@@ -167,14 +162,13 @@ export function Header() {
             >
               Semua Game
             </Link>
-            <div className="mt-5 grid grid-cols-2 gap-2">
-              <a href="#" className="jx-btn jx-btn-ghost">
-                Masuk
-              </a>
-              <a href="#" className="jx-btn jx-btn-dark">
-                Daftar
-              </a>
-            </div>
+            <Link
+              href="/cek-transaksi"
+              onClick={() => setDrawerOpen(false)}
+              className="jx-side mt-2"
+            >
+              Cek Transaksi
+            </Link>
           </div>
         </div>
       )}
