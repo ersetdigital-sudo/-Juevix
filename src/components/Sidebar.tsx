@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import type { Category } from "@/lib/db";
+import { useSettings } from "@/components/SettingsContext";
 
 function CategoryIcon({ icon }: { icon: string }) {
   const icons: Record<string, React.ReactNode> = {
@@ -101,6 +102,7 @@ function SidebarInner({
 }) {
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("category") || "semua";
+  const { promo_title, promo_desc } = useSettings();
 
   const filteredCategories = categories.filter((c) => c.slug !== "semua");
 
@@ -158,10 +160,10 @@ function SidebarInner({
             <path d="M12 3 4 9h16l-8-6Z" fill="#8bffd2" />
           </svg>
           <p className="font-display font-extrabold text-[13px] mt-2 leading-snug">
-            Top Up Lebih Mudah dan Aman
+            {promo_title || "Top Up Lebih Mudah dan Aman"}
           </p>
           <p className="text-[11px] text-[var(--jx-muted)] mt-1 leading-snug">
-            Proses instan 24 jam, harga termurah.
+            {promo_desc || "Proses instan 24 jam, harga termurah."}
           </p>
         </div>
       </div>

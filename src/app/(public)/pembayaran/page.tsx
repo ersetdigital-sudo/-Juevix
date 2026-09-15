@@ -10,6 +10,7 @@ import { useSettings } from "@/components/SettingsContext";
 interface PaymentMethod {
   id: number;
   category: string;
+  category_label: string | null;
   type: string;
   name: string;
   label: string;
@@ -48,11 +49,12 @@ function pad(n: number) {
 function PembayaranInner() {
   const searchParams = useSearchParams();
   const invoice = searchParams.get("invoice");
-  const { whatsapp } = useSettings();
+  const { whatsapp, company_name, cs_text } = useSettings();
 
   const [payments, setPayments] = useState<PaymentMethod[]>([]);
   const [activeTab, setActiveTab] = useState("");
   const [order, setOrder] = useState<OrderData | null>(null);
+  const [gameImage, setGameImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -86,6 +88,11 @@ function PembayaranInner() {
         setError(orderData.error);
       } else {
         setOrder(orderData);
+        if (orderData.game_slug) {
+          fetch(`/api/games/${orderData.game_slug}`).then((r) => r.json()).then((g) => {
+            if (g && g.image) setGameImage(g.image);
+          }).catch(() => {});
+        }
       }
       if (Array.isArray(payData)) {
         setPayments(payData);
@@ -117,7 +124,8 @@ function PembayaranInner() {
 
   const catTabs = Object.entries(categories).map(([key, methods]) => ({
     key,
-    label: key === "qris" ? "QRIS" : key === "va" ? "Virtual Account" : key === "ewallet" ? "E-Wallet" : key === "minimarket" ? "Minimarket" : key,
+    label: methods[0]?.category_label ||
+      (key === "qris" ? "QRIS" : key === "va" ? "Virtual Account" : key === "ewallet" ? "E-Wallet" : key === "minimarket" ? "Minimarket" : key),
     methods,
   }));
 
@@ -321,7 +329,7 @@ function PembayaranInner() {
                     />
                   )}
                   <p className="font-display font-extrabold text-[19px] mt-4">{formatRupiah(order.total)}</p>
-                  <p className="text-[12px] text-[var(--jx-muted)]">a.n. JUEVIX DIGITAL INDONESIA</p>
+                  <p className="text-[12px] text-[var(--jx-muted)]">a.n. {company_name || "JUEVIX DIGITAL INDONESIA"}</p>
                   <div className="flex flex-wrap gap-2 justify-center mt-4">
                     <a href="#" download className="jx-btn jx-btn-primary">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -342,7 +350,7 @@ function PembayaranInner() {
                     </span>
                     <div>
                       <p className="font-bold text-[13px]">{selectedPayment.name}</p>
-                      <p className="text-[12px] text-[var(--jx-muted)]">a.n. {selectedPayment.account_name || "JUEVIX DIGITAL INDONESIA"}</p>
+                      <p className="text-[12px] text-[var(--jx-muted)]">a.n. {selectedPayment.account_name || company_name || "JUEVIX DIGITAL INDONESIA"}</p>
                     </div>
                   </div>
                   <p className="text-[12px] font-bold text-[var(--jx-muted)] mt-4">Nomor {selectedPayment.category === "va" ? "Virtual Account" : "Rekening / E-Wallet"}</p>
@@ -371,7 +379,16 @@ function PembayaranInner() {
           <div className="jx-panel p-5 lg:sticky jx-sticky" style={{ top: 84 }}>
             <h2 className="font-display font-extrabold text-[15px] mb-4">Ringkasan Pesanan</h2>
             <div className="flex items-center gap-3 pb-4 border-b border-[var(--jx-line)]">
-              <Image src={`/${order.game_slug}-banner.png`} alt={order.game_name} width={48} height={48} className="w-12 h-12 rounded-xl object-cover" />
+              {gameImage ? (
+                <Image src={gameImage} alt={order.game_name} width={48} height={48} className="w-12 h-12 rounded-xl object-cover" />
+              ) : (
+                <div className="w-12 h-12 rounded-xl bg-[var(--jx-neon-soft)] grid place-items-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--jx-neon-600)" strokeWidth="2">
+                    <rect x="2" y="7" width="20" height="11" rx="4" />
+                    <path d="M7 12h3M8.5 10.5v3M16.5 12h.01M18.5 14h.01" />
+                  </svg>
+                </div>
+              )}
               <div className="min-w-0">
                 <p className="font-bold text-[13px] truncate">{order.game_name}</p>
               </div>
@@ -438,10 +455,10 @@ function PembayaranInner() {
           </span>
           <div>
             <p className="font-bold text-[14px]">Butuh bantuan?</p>
-            <p className="text-[12px] text-[var(--jx-muted)]">Tim CS Juevix siap bantu 24 jam lewat WhatsApp.</p>
+            <p className="text-[12px] text-[var(--jx-muted)]">{cs_text || "Tim CS kami siap bantu 24 jam lewat WhatsApp."}</p>
           </div>
         </div>
-        <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-primary">Hubungi CS via WhatsApp</a>
+        {whatsapp && <a href={`https://wa.me/${whatsapp}`} className="jx-btn jx-btn-primary">Hubungi CS via WhatsApp</a>}
       </section>
     </main>
   );

@@ -108,14 +108,11 @@ export async function getPaymentMethods(): Promise<PaymentCategory[]> {
 
   for (const m of methods) {
     if (!categories[m.category]) {
-      const catLabel =
-        m.category === "qris"
-          ? "QRIS"
-          : m.category === "ewallet"
-          ? "E-WALLET"
-          : m.category === "va"
-          ? "VIRTUAL ACCOUNT"
-          : "MINIMARKET";
+      const catLabel = m.category_label ||
+        (m.category === "qris" ? "QRIS" :
+         m.category === "ewallet" ? "E-WALLET" :
+         m.category === "va" ? "VIRTUAL ACCOUNT" :
+         "MINIMARKET");
       categories[m.category] = { label: catLabel, methods: [] };
     }
     categories[m.category].methods.push(m);
@@ -149,4 +146,36 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
     return [];
   }
   return data || [];
+}
+
+export interface SiteSettingsRow {
+  id: number;
+  whatsapp: string | null;
+  email: string | null;
+  site_name: string | null;
+  tagline: string | null;
+  primary_color: string | null;
+  instagram: string | null;
+  tiktok: string | null;
+  youtube: string | null;
+  admin_fee: number | null;
+  company_name: string | null;
+  invoice_prefix: string | null;
+  site_description: string | null;
+  promo_title: string | null;
+  promo_desc: string | null;
+  tos_url: string | null;
+  privacy_url: string | null;
+  cs_text: string | null;
+  updated_at: string | null;
+}
+
+export async function getSettings(): Promise<SiteSettingsRow | null> {
+  const { data, error } = await supabaseAdmin
+    .from("site_settings")
+    .select("*")
+    .single();
+
+  if (error || !data) return null;
+  return data;
 }

@@ -13,7 +13,7 @@ function formatRupiah(n: number) {
 
 const faqData = [
   {
-    q: "Berapa lama diamond masuk ke akun?",
+    q: "Berapa lama item masuk ke akun?",
     a: "Rata-rata 3–30 detik setelah pembayaran terkonfirmasi. Kalau lewat 10 menit belum masuk, cek status di halaman Cek Transaksi atau hubungi CS kami.",
   },
   {
@@ -21,43 +21,12 @@ const faqData = [
     a: "Aman. Juevix hanya meminta User ID dan Server ID — tidak pernah meminta password, kode OTP, atau akses login akun kamu.",
   },
   {
-    q: "Di mana saya bisa melihat User ID dan Server ID?",
-    a: "Buka Mobile Legends → klik avatar di pojok kiri atas → ID tampil di bawah nama dengan format 12345678 (2145). Angka pertama User ID, angka dalam kurung Server ID.",
-  },
-  {
     q: "Salah memasukkan User ID, bisa direfund?",
-    a: "Kalau diamond sudah terkirim ke ID yang salah, transaksi tidak bisa dibatalkan. Makanya pastikan User ID dan Server ID sudah benar sebelum bayar.",
+    a: "Kalau item sudah terkirim ke ID yang salah, transaksi tidak bisa dibatalkan. Makanya pastikan User ID dan Server ID sudah benar sebelum bayar.",
   },
   {
     q: "Metode pembayaran apa saja yang tersedia?",
     a: "QRIS, e-wallet (Dana, OVO, GoPay, ShopeePay), virtual account (BCA, BRI, BNI, Mandiri), dan minimarket (Alfamart, Indomaret).",
-  },
-];
-
-const reviews = [
-  {
-    name: "Rizky Ananda",
-    initials: "RA",
-    gradient: "linear-gradient(135deg,#0a5238,#00D97E)",
-    text: "\"Pesan 500 diamond jam 2 pagi, masuk kurang dari 10 detik. Harganya juga paling murah dibanding lapak lain.\"",
-    time: "2 hari lalu",
-    stars: "★★★★★",
-  },
-  {
-    name: "Dimas Pratama",
-    initials: "DP",
-    gradient: "linear-gradient(135deg,#1d4ed8,#38bdf8)",
-    text: "\"Proses top up super cepat, diamond langsung masuk. Bayar pakai QRIS langsung beres, recommended banget!\"",
-    time: "5 hari lalu",
-    stars: "★★★★★",
-  },
-  {
-    name: "Sinta Wulandari",
-    initials: "SW",
-    gradient: "linear-gradient(135deg,#7c2d12,#f59e0b)",
-    text: "\"Sempat pending 5 menit karena VA, tapi CS-nya fast response banget. Diamond akhirnya masuk semua.\"",
-    time: "1 minggu lalu",
-    stars: "★★★★☆",
   },
 ];
 
@@ -77,14 +46,14 @@ interface GameDetailProps {
 
 export function GameDetail({ game, nominals, paymentCategories }: GameDetailProps) {
   const router = useRouter();
-  const { whatsapp } = useSettings();
+  const { whatsapp, admin_fee, cs_text } = useSettings();
   const [userId, setUserId] = useState("");
   const [serverId, setServerId] = useState("");
   const [selectedNom, setSelectedNom] = useState<number | null>(null);
   const [selectedPay, setSelectedPay] = useState<string>("");
   const [ordering, setOrdering] = useState(false);
 
-  const ADMIN = 1000;
+  const ADMIN = admin_fee || 1000;
   const nom = nominals.find((n) => n.price === selectedNom);
 
   const subtotal = selectedNom ?? 0;
@@ -338,7 +307,7 @@ export function GameDetail({ game, nominals, paymentCategories }: GameDetailProp
               {ordering ? "Memproses..." : "Bayar Sekarang"}
             </button>
             <p className="text-[11px] text-[var(--jx-muted)] text-center mt-2.5 leading-relaxed">
-              Pastikan User ID &amp; Server ID sudah benar. Diamond masuk otomatis setelah pembayaran.
+              Pastikan User ID &amp; Server ID sudah benar. Item masuk otomatis setelah pembayaran.
             </p>
           </div>
         </aside>
@@ -351,9 +320,9 @@ export function GameDetail({ game, nominals, paymentCategories }: GameDetailProp
         <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
           {[
             { title: "Masukkan User ID", desc: "Isi User ID dan Server ID dengan benar sesuai panduan di atas.", icon: "user" },
-            { title: "Pilih Nominal", desc: "Pilih jumlah diamond atau paket yang kamu butuhkan. Cek badge promo untuk bonus ekstra.", icon: "diamond" },
+            { title: "Pilih Nominal", desc: "Pilih jumlah item yang kamu butuhkan. Cek badge promo untuk bonus ekstra.", icon: "diamond" },
             { title: "Bayar", desc: "Pilih QRIS, e-wallet, virtual account, atau minimarket. Selesaikan pembayaran.", icon: "card" },
-            { title: "Diamond Masuk", desc: "Diamond otomatis masuk dalam hitungan detik. Cek status kapan saja di Cek Transaksi.", icon: "check" },
+            { title: "Item Masuk", desc: "Item otomatis masuk dalam hitungan detik. Cek status kapan saja di Cek Transaksi.", icon: "check" },
           ].map((step, i) => (
             <div key={i} className="jx-card p-5">
               <div className="flex items-center justify-between mb-3">
@@ -395,44 +364,16 @@ export function GameDetail({ game, nominals, paymentCategories }: GameDetailProp
         <div className="jx-panel p-5">
           <h3 className="font-display font-extrabold text-[15px]">Masih bingung?</h3>
           <p className="text-[13px] text-[var(--jx-muted)] mt-1.5 leading-relaxed">
-            Tim CS Juevix online 24 jam dan siap bantu proses top up kamu.
+            {cs_text || "Tim CS kami online 24 jam dan siap bantu proses top up kamu."}
           </p>
-          <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-primary w-full mt-4">
-            Hubungi CS WhatsApp
-          </a>
+          {whatsapp && (
+            <a href={`https://wa.me/${whatsapp}`} className="jx-btn jx-btn-primary w-full mt-4">
+              Hubungi CS WhatsApp
+            </a>
+          )}
           <Link href="/cek-transaksi" className="jx-btn jx-btn-ghost w-full mt-2">
             Cek Status Transaksi
           </Link>
-        </div>
-      </section>
-
-      {/* Reviews */}
-      <section className="mt-8">
-        <div className="flex items-end justify-between mb-4">
-          <div>
-            <h2 className="font-display text-lg sm:text-xl font-extrabold">Review Pemain</h2>
-            <p className="text-[13px] text-[var(--jx-muted)]">4.9 dari 5 · 12.480 review terverifikasi</p>
-          </div>
-        </div>
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3">
-          {reviews.map((r, i) => (
-            <article key={i} className="jx-card p-5">
-              <div className="flex items-center gap-3">
-                <span
-                  className="w-10 h-10 rounded-full grid place-items-center font-extrabold text-white text-[13px]"
-                  style={{ background: r.gradient }}
-                >
-                  {r.initials}
-                </span>
-                <div>
-                  <p className="font-bold text-[13px]">{r.name}</p>
-                  <p className="jx-stars text-[12px]">{r.stars}</p>
-                </div>
-              </div>
-              <p className="text-[13px] text-[var(--jx-muted)] mt-3 leading-relaxed">{r.text}</p>
-              <p className="text-[11px] text-[var(--jx-muted)] mt-3">{r.time}</p>
-            </article>
-          ))}
         </div>
       </section>
     </main>

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-interface SiteSettings {
+export interface SiteSettings {
   whatsapp: string;
   email: string;
   site_name: string;
@@ -11,36 +11,47 @@ interface SiteSettings {
   instagram: string;
   tiktok: string;
   youtube: string;
+  admin_fee: number;
+  company_name: string;
+  invoice_prefix: string;
+  site_description: string;
+  promo_title: string;
+  promo_desc: string;
+  tos_url: string;
+  privacy_url: string;
+  cs_text: string;
 }
 
-const SettingsContext = createContext<SiteSettings>({
-  whatsapp: "6281234567890",
-  email: "halo@juevix.net",
-  site_name: "Juevix",
-  tagline: "Top Up Game, Lebih Mudah",
+const defaults: SiteSettings = {
+  whatsapp: "",
+  email: "",
+  site_name: "",
+  tagline: "",
   primary_color: "#00D97E",
-  instagram: "@juevix",
-  tiktok: "@juevix",
-  youtube: "@juevix",
-});
+  instagram: "",
+  tiktok: "",
+  youtube: "",
+  admin_fee: 1000,
+  company_name: "JUEVIX DIGITAL INDONESIA",
+  invoice_prefix: "JVX",
+  site_description: "",
+  promo_title: "",
+  promo_desc: "",
+  tos_url: "",
+  privacy_url: "",
+  cs_text: "",
+};
+
+const SettingsContext = createContext<SiteSettings>(defaults);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [settings, setSettings] = useState<SiteSettings>({
-    whatsapp: "6281234567890",
-    email: "halo@juevix.net",
-    site_name: "Juevix",
-    tagline: "Top Up Game, Lebih Mudah",
-    primary_color: "#00D97E",
-    instagram: "@juevix",
-    tiktok: "@juevix",
-    youtube: "@juevix",
-  });
+  const [settings, setSettings] = useState<SiteSettings>(defaults);
 
   useEffect(() => {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((data) => {
-        if (data && !data.error) setSettings(data);
+        if (data && !data.error) setSettings({ ...defaults, ...data });
       })
       .catch(() => {});
   }, []);

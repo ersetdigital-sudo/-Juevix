@@ -4,14 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { JxLogo } from "./JxLogo";
+import { useSettings } from "@/components/SettingsContext";
 
 export function Header() {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { site_name, tagline } = useSettings();
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/game/mobile-legends", label: "Topup Game" },
+    { href: "/", label: "Topup Game" },
     { href: "/cek-transaksi", label: "Cek Transaksi" },
   ];
 
@@ -25,10 +27,10 @@ export function Header() {
             <JxLogo />
             <span className="leading-tight">
               <span className="block font-display font-extrabold text-[17px]">
-                Juevix
+                {site_name || "Juevix"}
               </span>
               <span className="hidden sm:block text-[10px] text-[var(--jx-muted)] font-semibold">
-                Top Up Game, Lebih Mudah
+                {tagline || "Top Up Game, Lebih Mudah"}
               </span>
             </span>
           </Link>
@@ -59,7 +61,7 @@ export function Header() {
           <nav className="hidden lg:flex items-center gap-5 ml-auto">
             {navLinks.map((link) => (
               <Link
-                key={link.href}
+                key={link.label}
                 href={link.href}
                 className={`jx-navlink ${isActive(link.href) ? "is-active" : ""}`}
               >
@@ -123,7 +125,7 @@ export function Header() {
           />
           <div className="absolute right-0 top-0 h-full w-[86%] max-w-xs bg-white p-5 overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <span className="font-display font-extrabold text-lg">Menu</span>
+              <span className="font-display font-extrabold text-lg">{site_name || "Menu"}</span>
               <button
                 onClick={() => setDrawerOpen(false)}
                 className="w-11 h-11 grid place-items-center rounded-xl border border-[var(--jx-line)]"
@@ -147,7 +149,7 @@ export function Header() {
             />
             {navLinks.map((link) => (
               <Link
-                key={link.href}
+                key={link.label}
                 href={link.href}
                 onClick={() => setDrawerOpen(false)}
                 className={`jx-side ${isActive(link.href) ? "is-active" : ""}`}

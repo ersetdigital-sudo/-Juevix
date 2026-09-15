@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Sora } from "next/font/google";
 import "./globals.css";
+import { getSettings } from "@/lib/db";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -16,29 +17,35 @@ const sora = Sora({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Juevix — Top Up Game, Lebih Mudah",
-    template: "%s — Juevix",
-  },
-  description:
-    "Juevix: top up diamond, gems, dan voucher game favorit kamu. Proses instan 24 jam, harga termurah, transaksi aman.",
-  keywords: ["top up game", "diamond mobile legends", "top up murah", "juevix"],
-  icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-    ],
-    apple: "/apple-touch-icon.png",
-  },
-  openGraph: {
-    title: "Juevix — Top Up Game, Lebih Mudah",
-    description: "Top up diamond, gems, dan voucher game favorit kamu. Proses instan 24 jam.",
-    locale: "id_ID",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+  const siteName = settings?.site_name || "Juevix";
+  const tagline = settings?.tagline || "Top Up Game, Lebih Mudah";
+  const description = settings?.site_description || `${siteName}: top up diamond, gems, dan voucher game favorit kamu. Proses instan 24 jam, harga termurah, transaksi aman.`;
+
+  return {
+    title: {
+      default: `${siteName} — ${tagline}`,
+      template: `%s — ${siteName}`,
+    },
+    description,
+    keywords: ["top up game", "diamond mobile legends", "top up murah", siteName.toLowerCase()],
+    icons: {
+      icon: [
+        { url: "/favicon.svg", type: "image/svg+xml" },
+        { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      ],
+      apple: "/apple-touch-icon.png",
+    },
+    openGraph: {
+      title: `${siteName} — ${tagline}`,
+      description,
+      locale: "id_ID",
+      type: "website",
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#04251a",

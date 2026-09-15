@@ -6,17 +6,6 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import type { Game, Category } from "@/lib/db";
 
-const categoryMeta: Record<string, { label: string; desc: string }> = {
-  semua: { label: "Semua Game", desc: "Semua game yang tersedia di Juevix." },
-  moba: { label: "Moba Game", desc: "Game MOBA populer dengan jutaan pemain di seluruh dunia." },
-  rpg: { label: "RPG", desc: "Game RPG dengan cerita epik dan petualangan seru." },
-  casual: { label: "Casual Game", desc: "Game casual yang asik dimainkan kapan saja." },
-  strategy: { label: "Strategy", desc: "Game strategi untuk otak kamu." },
-  simulator: { label: "Simulator", desc: "Game simulasi kehidupan nyata." },
-  sports: { label: "Sports Game", desc: "Game olahraga favorit kamu." },
-  adventure: { label: "Adventure", desc: "Petualangan seru menunggu kamu." },
-};
-
 function GameGridInner({
   games,
   categories,
@@ -35,10 +24,9 @@ function GameGridInner({
           return cat && g.category === cat.name;
         });
 
-  const meta = categoryMeta[activeSlug] || {
-    label: categories.find((c) => c.slug === activeSlug)?.name || "Game",
-    desc: "",
-  };
+  const meta = categories.find((c) => c.slug === activeSlug)
+    ? { label: categories.find((c) => c.slug === activeSlug)!.name, desc: "" }
+    : { label: "Semua Game", desc: "Semua game yang tersedia." };
 
   return (
     <section className="mt-6">

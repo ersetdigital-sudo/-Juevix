@@ -42,7 +42,7 @@ export default function AdminLogin() {
               <path d="M12 2 4 9h16l-8-7Z" fill="#8bffd2" />
             </svg>
           </div>
-          <h1 className="font-display text-2xl font-extrabold">Juevix Admin</h1>
+          <h1 className="font-display text-2xl font-extrabold">Admin Panel</h1>
           <p className="text-[14px] text-gray-500 mt-1">Masuk ke panel administrasi</p>
         </div>
 
@@ -88,7 +88,7 @@ export default function AdminLogin() {
         </form>
 
         <p className="text-center text-[12px] text-gray-400 mt-6">
-          &copy; 2026 Juevix. Admin Panel.
+          &copy; {new Date().getFullYear()} Admin Panel.
         </p>
       </div>
     </div>

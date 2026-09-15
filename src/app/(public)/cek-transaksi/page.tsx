@@ -24,7 +24,7 @@ function formatRupiah(n: number) {
 }
 
 export default function CekTransaksiPage() {
-  const { whatsapp } = useSettings();
+  const { whatsapp, cs_text } = useSettings();
   const [invoice, setInvoice] = useState("");
   const [loading, setLoading] = useState(false);
   const [showEmpty, setShowEmpty] = useState(true);
@@ -83,7 +83,7 @@ export default function CekTransaksiPage() {
           <input
             className="jx-input flex-1"
             style={{ minHeight: 50 }}
-            placeholder="Contoh: JVX-20260913-8842"
+            placeholder="Masukkan nomor invoice..."
             autoComplete="off"
             value={invoice}
             onChange={(e) => setInvoice(e.target.value)}
@@ -116,7 +116,7 @@ export default function CekTransaksiPage() {
           </p>
           <div className="flex flex-wrap gap-2 justify-center mt-5">
             <a href="/" className="jx-btn jx-btn-ghost">Top Up Game</a>
-            <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-soft">Hubungi CS</a>
+            <a href={whatsapp ? `https://wa.me/${whatsapp}` : "#"} className="jx-btn jx-btn-soft">Hubungi CS</a>
           </div>
         </section>
       )}
@@ -132,9 +132,9 @@ export default function CekTransaksiPage() {
           </div>
           <h2 className="font-display font-extrabold text-[17px] mt-4">Invoice tidak ditemukan</h2>
           <p className="text-[13px] text-[var(--jx-muted)] mt-2 max-w-md mx-auto leading-relaxed">
-            Pastikan nomor invoice yang kamu masukkan benar (format <b>JVX-XXXXXXXX-XXXX</b>). Kalau masih gagal, hubungi CS kami.
+            Pastikan nomor invoice yang kamu masukkan benar. Kalau masih gagal, hubungi CS kami.
           </p>
-          <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-primary mt-5">Hubungi CS</a>
+          <a href={whatsapp ? `https://wa.me/${whatsapp}` : "#"} className="jx-btn jx-btn-primary mt-5">Hubungi CS</a>
         </section>
       )}
 
@@ -191,8 +191,8 @@ export default function CekTransaksiPage() {
             </div>
 
             <div className="flex flex-wrap gap-2 mt-5">
-              <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-primary">Hubungi CS</a>
-              <a href={`/${order.game_slug}`} className="jx-btn jx-btn-ghost">Beli Lagi</a>
+              <a href={whatsapp ? `https://wa.me/${whatsapp}` : "#"} className="jx-btn jx-btn-primary">Hubungi CS</a>
+              <a href={`/game/${order.game_slug}`} className="jx-btn jx-btn-ghost">Beli Lagi</a>
             </div>
           </div>
 
@@ -219,11 +219,13 @@ export default function CekTransaksiPage() {
             </ul>
             <div className="mt-5 pt-5 border-t border-[var(--jx-line)]">
               <p className="text-[13px] text-[var(--jx-muted)] leading-relaxed">
-                Ada kendala dengan pesanan kamu? CS Juevix online 24 jam.
+                {cs_text || "Ada kendala dengan pesanan kamu? Tim CS kami online 24 jam."}
               </p>
-              <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-soft w-full mt-3">
-                Chat WhatsApp
-              </a>
+              {whatsapp && (
+                <a href={`https://wa.me/${whatsapp}`} className="jx-btn jx-btn-soft w-full mt-3">
+                  Chat WhatsApp
+                </a>
+              )}
             </div>
           </aside>
         </section>

@@ -14,10 +14,18 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
+  const { data: settings } = await supabaseAdmin
+    .from("site_settings")
+    .select("admin_fee, invoice_prefix")
+    .single();
+
+  const prefix = settings?.invoice_prefix || "JVX";
   const now = new Date();
   const dateStr = now.toISOString().slice(0, 10).replace(/-/g, "");
   const rand = Math.floor(Math.random() * 9000) + 1000;
-  const invoice = `JVX-${dateStr}-${rand}`;
+  const invoice = `${prefix}-${dateStr}-${rand}`;
+
+  const adminFee = body.admin_fee ?? settings?.admin_fee ?? 1000;
 
   const { data, error } = await supabaseAdmin
     .from("orders")
@@ -30,7 +38,7 @@ export async function POST(req: NextRequest) {
       nickname: body.nickname || null,
       product_label: body.product_label,
       price: body.price,
-      admin_fee: body.admin_fee || 1000,
+      admin_fee: adminFee,
       total: body.total,
       payment_method: body.payment_method,
       status: "pending",
