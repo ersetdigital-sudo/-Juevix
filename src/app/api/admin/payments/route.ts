@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
+const VALID_COLUMNS = [
+  "category", "name", "label", "code", "color", "sort_order",
+  "type", "account_number", "account_name", "qris_image", "is_active", "icon",
+];
+
 export async function GET() {
   const { data, error } = await supabaseAdmin
     .from("payment_methods")
@@ -13,9 +18,18 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
+
+  // Filter only valid columns
+  const filtered: Record<string, unknown> = {};
+  for (const key of VALID_COLUMNS) {
+    if (body[key] !== undefined && body[key] !== null) {
+      filtered[key] = body[key];
+    }
+  }
+
   const { data, error } = await supabaseAdmin
     .from("payment_methods")
-    .insert(body)
+    .insert(filtered)
     .select()
     .single();
 
