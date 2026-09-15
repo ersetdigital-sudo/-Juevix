@@ -30,7 +30,7 @@ Proses instan 24 jam, harga termurah, transaksi aman.**
 
 <div align="center">
 
-<img src="public/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png" alt="Juevix Preview" width="100%">
+<img src="public/ml-banner.png" alt="Juevix Preview" width="100%">
 
 </div>
 

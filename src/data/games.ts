@@ -66,7 +66,7 @@ export const games: Game[] = [
     rating: 4.9,
     reviews: "12k",
     developer: "Moonton",
-    image: "/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png",
+    image: "/ml-banner.png",
   },
   {
     slug: "honor-of-kings",
@@ -175,17 +175,17 @@ export const paymentCategories = {
 
 export const heroSlides = [
   {
-    image: "/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png",
+    image: "/ml-banner.png",
     alt: "Top Up Game Favorit Kamu — main lebih seru, lebih untung",
     href: "/game/mobile-legends",
   },
   {
-    image: "/16380da0-e632-44d9-98f5-7af7deacfc74.png",
+    image: "/pubg-banner.png",
     alt: "Top Up UC PUBG Lebih Untung — survive more, play more",
     href: "/game/mobile-legends",
   },
   {
-    image: "/banner-tambahan-genshin-impact.png",
+    image: "/genshin-banner.png",
     alt: "Top Up Genesis Crystals Genshin Impact — adventure awaits",
     href: "/game/mobile-legends",
   },

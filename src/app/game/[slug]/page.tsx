@@ -107,7 +107,7 @@ export default function GameDetailPage() {
         <div className="grid md:grid-cols-[280px_minmax(0,1fr)] items-stretch">
           <div className="relative h-48 md:h-auto md:min-h-[240px]">
             <Image
-              src="/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png"
+              src="/ml-banner.png"
               alt="Mobile Legends"
               fill
               className="object-cover"
@@ -274,7 +274,7 @@ export default function GameDetailPage() {
             <h2 className="font-display font-extrabold text-[15px] mb-4">Ringkasan Pesanan</h2>
             <div className="flex items-center gap-3 pb-4 border-b border-[var(--jx-line)]">
               <Image
-                src="/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png"
+                src="/ml-banner.png"
                 alt="Mobile Legends"
                 width={48}
                 height={48}
