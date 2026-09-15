@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { TopupNominal, PaymentCategory } from "@/lib/db";
+import { useSettings } from "@/components/SettingsContext";
 
 function formatRupiah(n: number) {
   return "Rp" + n.toLocaleString("id-ID");
@@ -76,6 +77,7 @@ interface GameDetailProps {
 
 export function GameDetail({ game, nominals, paymentCategories }: GameDetailProps) {
   const router = useRouter();
+  const { whatsapp } = useSettings();
   const [userId, setUserId] = useState("");
   const [serverId, setServerId] = useState("");
   const [selectedNom, setSelectedNom] = useState<number | null>(null);
@@ -395,7 +397,7 @@ export function GameDetail({ game, nominals, paymentCategories }: GameDetailProp
           <p className="text-[13px] text-[var(--jx-muted)] mt-1.5 leading-relaxed">
             Tim CS Juevix online 24 jam dan siap bantu proses top up kamu.
           </p>
-          <a href="https://wa.me/6281234567890" className="jx-btn jx-btn-primary w-full mt-4">
+          <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-primary w-full mt-4">
             Hubungi CS WhatsApp
           </a>
           <Link href="/cek-transaksi" className="jx-btn jx-btn-ghost w-full mt-2">

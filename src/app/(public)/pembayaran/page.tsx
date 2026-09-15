@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { useSettings } from "@/components/SettingsContext";
 
 interface PaymentMethod {
   id: number;
@@ -47,6 +48,7 @@ function pad(n: number) {
 function PembayaranInner() {
   const searchParams = useSearchParams();
   const invoice = searchParams.get("invoice");
+  const { whatsapp } = useSettings();
 
   const [payments, setPayments] = useState<PaymentMethod[]>([]);
   const [activeTab, setActiveTab] = useState("");
@@ -439,7 +441,7 @@ function PembayaranInner() {
             <p className="text-[12px] text-[var(--jx-muted)]">Tim CS Juevix siap bantu 24 jam lewat WhatsApp.</p>
           </div>
         </div>
-        <a href="https://wa.me/6281234567890" className="jx-btn jx-btn-primary">Hubungi CS via WhatsApp</a>
+        <a href={`https://wa.me/${whatsapp || "6281234567890"}`} className="jx-btn jx-btn-primary">Hubungi CS via WhatsApp</a>
       </section>
     </main>
   );
