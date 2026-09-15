@@ -3,6 +3,8 @@ import { GameGrid } from "@/components/GameGrid";
 import { Sidebar } from "@/components/Sidebar";
 import { getGames, getCategories, getHeroSlides } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [games, categories, heroSlides] = await Promise.all([
     getGames(),
