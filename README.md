@@ -1,17 +1,26 @@
 <div align="center">
 
-# ⚡ Juevix
+<img src="public/favicon.svg" alt="Juevix Logo" width="60">
+
+# Juevix
 
 ### Top Up Game, Lebih Mudah
 
 **Platform top up diamond, gems, dan voucher game favorit kamu.  
 Proses instan 24 jam, harga termurah, transaksi aman.**
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)](https://typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com)
-[![License](https://img.shields.io/badge/License-MIT-00D97E?style=flat-square)](#)
+<br>
+
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+
+<br>
+
+[![License](https://img.shields.io/badge/License-MIT-00D97E?style=for-the-badge)](#)
+[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=for-the-badge)](#)
+[![Issues](https://img.shields.io/badge/Issues-0-blue?style=for-the-badge)](#)
 
 </div>
 
@@ -21,7 +30,7 @@ Proses instan 24 jam, harga termurah, transaksi aman.**
 
 <div align="center">
 
-![Juevix Preview](public/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png)
+<img src="public/9ddb81da-7b77-4659-8019-49f3ed9f7ef2.png" alt="Juevix Preview" width="100%">
 
 </div>
 
@@ -29,15 +38,71 @@ Proses instan 24 jam, harga termurah, transaksi aman.**
 
 ## Fitur Utama
 
-| Fitur | Deskripsi |
-|-------|-----------|
-| 🎮 **Game Catalog** | Katalog game lengkap dengan filter kategori & platform |
-| ⚡ **Instant Top Up** | Proses top up otomatis dalam hitungan detik |
-| 💳 **Multi Pembayaran** | QRIS, e-wallet (DANA, OVO, GoPay, ShopeePay), VA, minimarket |
-| 🔍 **Cek Nickname** | Verifikasi ID game sebelum bayar |
-| 📊 **Cek Transaksi** | Lacak status pesanan real-time dengan invoice |
-| 📱 **Responsive** | Mobile-first design, sempurna di semua device |
-| 🌙 **Dark Theme** | UI gelap premium dengan aksen neon hijau |
+<table>
+  <tr>
+    <td align="center" width="90">
+      <img src="https://img.shields.io/badge/-Game_Catalog-00D97E?style=flat-square&logo=gamepad&logoColor=white" height="28" alt="Game Catalog">
+    </td>
+    <td>
+      <b>Game Catalog</b><br>
+      Katalog game lengkap dengan filter kategori & platform
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://img.shields.io/badge/-Instant_Top_Up-FFC107?style=flat-square&logo=bolt&logoColor=black" height="28" alt="Instant Top Up">
+    </td>
+    <td>
+      <b>Instant Top Up</b><br>
+      Proses top up otomatis dalam hitungan detik
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://img.shields.io/badge/-Multi_Payment-2196F3?style=flat-square&logo=credit-card&logoColor=white" height="28" alt="Multi Payment">
+    </td>
+    <td>
+      <b>Multi Pembayaran</b><br>
+      QRIS, e-wallet (DANA, OVO, GoPay, ShopeePay), VA, minimarket
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://img.shields.io/badge/-Cek_Nickname-9C27B0?style=flat-square&logo=search&logoColor=white" height="28" alt="Cek Nickname">
+    </td>
+    <td>
+      <b>Cek Nickname</b><br>
+      Verifikasi ID game sebelum bayar
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://img.shields.io/badge/-Cek_Transaksi-FF5722?style=flat-square&logo=chart-line&logoColor=white" height="28" alt="Cek Transaksi">
+    </td>
+    <td>
+      <b>Cek Transaksi</b><br>
+      Lacak status pesanan real-time dengan invoice
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://img.shields.io/badge/-Responsive-4CAF50?style=flat-square&logo=mobile-alt&logoColor=white" height="28" alt="Responsive">
+    </td>
+    <td>
+      <b>Responsive</b><br>
+      Mobile-first design, sempurna di semua device
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://img.shields.io/badge/-Dark_Theme-212121?style=flat-square&logo=moon&logoColor=white" height="28" alt="Dark Theme">
+    </td>
+    <td>
+      <b>Dark Theme</b><br>
+      UI gelap premium dengan aksen neon hijau
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -54,12 +119,20 @@ Proses instan 24 jam, harga termurah, transaksi aman.**
 
 ## Tech Stack
 
-- **Framework:** Next.js 16 (App Router + Turbopack)
-- **UI:** React 19 + Tailwind CSS 4
-- **Animation:** Framer Motion
-- **Slider:** Swiper.js
-- **Language:** TypeScript
-- **Font:** Plus Jakarta Sans + Sora
+<div align="center">
+
+| | Tech | Versi |
+|---|------|-------|
+| <img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white" height="22"> | **Framework** | 16 (App Router + Turbopack) |
+| <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black" height="22"> | **UI Library** | 19 |
+| <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" height="22"> | **Styling** | 4 |
+| <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white" height="22"> | **Animation** | 13 |
+| <img src="https://img.shields.io/badge/Swiper-6332F6?style=flat-square&logo=swiper&logoColor=white" height="22"> | **Slider** | 14 |
+| <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" height="22"> | **Language** | 5 |
+| <img src="https://img.shields.io/badge/Font-Sora-FF6B6B?style=flat-square&logo=googlefonts&logoColor=white" height="22"> | **Display Font** | Sora |
+| <img src="https://img.shields.io/badge/Font-Plus_Jakarta-00D97E?style=flat-square&logo=googlefonts&logoColor=white" height="22"> | **Body Font** | Plus Jakarta Sans |
+
+</div>
 
 ---
 
@@ -108,14 +181,32 @@ src/
 
 ## Brand Identity
 
-| Element | Value |
-|---------|-------|
-| **Brand** | Juevix |
-| **Tagline** | Top Up Game, Lebih Mudah |
-| **Primary Color** | `#00D97E` (Neon Green) |
-| **Dark Base** | `#04251a` |
-| **Font Display** | Sora |
-| **Font Body** | Plus Jakarta Sans |
+<table>
+  <tr>
+    <td><b>Brand</b></td>
+    <td>Juevix</td>
+  </tr>
+  <tr>
+    <td><b>Tagline</b></td>
+    <td>Top Up Game, Lebih Mudah</td>
+  </tr>
+  <tr>
+    <td><b>Primary Color</b></td>
+    <td><code>#00D97E</code> (Neon Green)</td>
+  </tr>
+  <tr>
+    <td><b>Dark Base</b></td>
+    <td><code>#04251a</code></td>
+  </tr>
+  <tr>
+    <td><b>Font Display</b></td>
+    <td>Sora</td>
+  </tr>
+  <tr>
+    <td><b>Font Body</b></td>
+    <td>Plus Jakarta Sans</td>
+  </tr>
+</table>
 
 ---
 
