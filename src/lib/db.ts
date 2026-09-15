@@ -95,6 +95,7 @@ export async function getPaymentMethods(): Promise<PaymentCategory[]> {
   const { data, error } = await supabaseAdmin
     .from("payment_methods")
     .select("*")
+    .eq("is_active", true)
     .order("sort_order");
 
   if (error) {
@@ -121,6 +122,19 @@ export async function getPaymentMethods(): Promise<PaymentCategory[]> {
   }
 
   return Object.values(categories);
+}
+
+export async function getAllPaymentMethods(): Promise<PaymentMethod[]> {
+  const { data, error } = await supabaseAdmin
+    .from("payment_methods")
+    .select("*")
+    .order("sort_order");
+
+  if (error) {
+    console.error("Error fetching all payment methods:", error);
+    return [];
+  }
+  return data || [];
 }
 
 export async function getHeroSlides(): Promise<HeroSlide[]> {

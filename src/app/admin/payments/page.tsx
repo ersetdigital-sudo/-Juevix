@@ -1,23 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface Payment {
   id: number;
   category: string;
+  type: string;
   name: string;
   label: string;
   code: string;
   color: string;
+  account_number: string | null;
+  account_name: string | null;
+  qris_image: string | null;
+  is_active: boolean;
+  icon: string | null;
   sort_order: number;
 }
 
 const empty: Omit<Payment, "id"> = {
   category: "ewallet",
+  type: "transfer",
   name: "",
   label: "",
   code: "",
   color: "#666666",
+  account_number: "",
+  account_name: "",
+  qris_image: "",
+  is_active: true,
+  icon: "",
   sort_order: 0,
 };
 
@@ -28,6 +40,8 @@ export default function AdminPayments() {
   const [editId, setEditId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const load = () => {
     fetch("/api/admin/payments")
@@ -38,19 +52,40 @@ export default function AdminPayments() {
 
   useEffect(() => { load(); }, []);
 
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const data = await res.json();
+    setUploading(false);
+    if (data.url) {
+      setForm({ ...form, qris_image: data.url });
+    } else {
+      alert(data.error || "Upload gagal");
+    }
+  };
+
   const handleSubmit = async () => {
     setSaving(true);
+    const payload = {
+      ...form,
+      account_number: form.account_number || null,
+      account_name: form.account_name || null,
+      qris_image: form.qris_image || null,
+      icon: form.icon || null,
+    };
     if (editId) {
       await fetch(`/api/admin/payments/${editId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
     } else {
       await fetch("/api/admin/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
     }
     setForm(empty);
@@ -69,14 +104,29 @@ export default function AdminPayments() {
   const handleEdit = (p: Payment) => {
     setForm({
       category: p.category,
+      type: p.type,
       name: p.name,
       label: p.label,
       code: p.code,
       color: p.color,
+      account_number: p.account_number || "",
+      account_name: p.account_name || "",
+      qris_image: p.qris_image || "",
+      is_active: p.is_active,
+      icon: p.icon || "",
       sort_order: p.sort_order,
     });
     setEditId(p.id);
     setShowForm(true);
+  };
+
+  const toggleActive = async (p: Payment) => {
+    await fetch(`/api/admin/payments/${p.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ is_active: !p.is_active }),
+    });
+    load();
   };
 
   const grouped = payments.reduce<Record<string, Payment[]>>((acc, p) => {
@@ -97,7 +147,7 @@ export default function AdminPayments() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display text-2xl font-extrabold">Payments</h2>
-          <p className="text-[14px] text-gray-500 mt-1">Kelola metode pembayaran.</p>
+          <p className="text-[14px] text-gray-500 mt-1">Kelola metode pembayaran customer.</p>
         </div>
         <button
           onClick={() => { setForm(empty); setEditId(null); setShowForm(true); }}
@@ -114,6 +164,14 @@ export default function AdminPayments() {
           </h3>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
+              <label className="block text-[12px] font-bold mb-1">Nama Metode</label>
+              <input className="jx-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="QRIS / Transfer BCA / Dana" />
+            </div>
+            <div>
+              <label className="block text-[12px] font-bold mb-1">Label Tampil</label>
+              <input className="jx-input" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="QRIS / BCA / DANA" />
+            </div>
+            <div>
               <label className="block text-[12px] font-bold mb-1">Kategori</label>
               <select className="jx-input" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                 <option value="qris">QRIS</option>
@@ -123,16 +181,15 @@ export default function AdminPayments() {
               </select>
             </div>
             <div>
-              <label className="block text-[12px] font-bold mb-1">Nama</label>
-              <input className="jx-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Dana" />
-            </div>
-            <div>
-              <label className="block text-[12px] font-bold mb-1">Label</label>
-              <input className="jx-input" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="DANA" />
+              <label className="block text-[12px] font-bold mb-1">Tipe</label>
+              <select className="jx-input" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                <option value="qris">QRIS (Upload Gambar)</option>
+                <option value="transfer">Transfer / E-Wallet</option>
+              </select>
             </div>
             <div>
               <label className="block text-[12px] font-bold mb-1">Code</label>
-              <input className="jx-input" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="DANA" />
+              <input className="jx-input" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="BCA / DANA / QR" />
             </div>
             <div>
               <label className="block text-[12px] font-bold mb-1">Warna</label>
@@ -146,8 +203,76 @@ export default function AdminPayments() {
               <input type="number" className="jx-input" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: parseInt(e.target.value) })} />
             </div>
           </div>
+
+          {form.type === "qris" ? (
+            <div className="space-y-3">
+              <label className="block text-[12px] font-bold">Gambar QRIS</label>
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".png,.jpg,.jpeg"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleUpload(f);
+                }}
+              />
+              {form.qris_image ? (
+                <div className="relative inline-block">
+                  <img src={form.qris_image} alt="QRIS" className="w-[200px] h-[200px] object-cover rounded-xl border border-gray-200" />
+                  <button
+                    onClick={() => setForm({ ...form, qris_image: "" })}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-[12px] grid place-items-center hover:bg-red-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  disabled={uploading}
+                  className="w-[200px] h-[200px] rounded-xl border-2 border-dashed border-gray-300 grid place-items-center text-center hover:border-[#00D97E] transition-colors"
+                >
+                  {uploading ? (
+                    <span className="text-[13px] text-gray-400">Uploading...</span>
+                  ) : (
+                    <>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="1.5" className="mx-auto">
+                        <path d="M12 3v12M7 11l5 5 5-5M4 21h16" />
+                      </svg>
+                      <span className="text-[12px] text-gray-400 mt-2 block">Klik untuk upload QRIS<br/>.png / .jpg (maks 2MB)</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[12px] font-bold mb-1">Nomor Rekening / E-Wallet</label>
+                <input className="jx-input" value={form.account_number || ""} onChange={(e) => setForm({ ...form, account_number: e.target.value })} placeholder="1234567890" />
+              </div>
+              <div>
+                <label className="block text-[12px] font-bold mb-1">Nama Pemilik</label>
+                <input className="jx-input" value={form.account_name || ""} onChange={(e) => setForm({ ...form, account_name: e.target.value })} placeholder="JUEVIX DIGITAL" />
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <label className="text-[12px] font-bold">Status:</label>
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, is_active: !form.is_active })}
+              className={`relative w-11 h-6 rounded-full transition-colors ${form.is_active ? "bg-[#00D97E]" : "bg-gray-300"}`}
+            >
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${form.is_active ? "translate-x-5" : ""}`} />
+            </button>
+            <span className="text-[12px] font-semibold">{form.is_active ? "Aktif" : "Nonaktif"}</span>
+          </div>
+
           <div className="flex gap-2">
-            <button onClick={handleSubmit} disabled={saving} className="jx-btn jx-btn-primary text-[13px]">
+            <button onClick={handleSubmit} disabled={saving || uploading} className="jx-btn jx-btn-primary text-[13px]">
               {saving ? "Menyimpan..." : editId ? "Update" : "Simpan"}
             </button>
             <button onClick={() => { setShowForm(false); setEditId(null); }} className="jx-btn jx-btn-ghost text-[13px] border-gray-200">
@@ -164,35 +289,46 @@ export default function AdminPayments() {
               {catLabel[cat] || cat}
             </span>
           </div>
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="border-b border-gray-100 text-left text-gray-500 font-semibold">
-                <th className="px-5 py-3">Warna</th>
-                <th className="px-5 py-3">Code</th>
-                <th className="px-5 py-3">Nama</th>
-                <th className="px-5 py-3">Label</th>
-                <th className="px-5 py-3">Sort</th>
-                <th className="px-5 py-3 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {methods.map((m) => (
-                <tr key={m.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                  <td className="px-5 py-3">
-                    <span className="w-8 h-8 rounded-lg block" style={{ background: m.color }} />
-                  </td>
-                  <td className="px-5 py-3 font-bold">{m.code}</td>
-                  <td className="px-5 py-3">{m.name}</td>
-                  <td className="px-5 py-3">{m.label}</td>
-                  <td className="px-5 py-3 text-gray-500">{m.sort_order}</td>
-                  <td className="px-5 py-3 text-right space-x-2">
-                    <button onClick={() => handleEdit(m)} className="text-blue-600 hover:underline font-semibold">Edit</button>
-                    <button onClick={() => handleDelete(m.id)} className="text-red-500 hover:underline font-semibold">Hapus</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="divide-y divide-gray-50">
+            {methods.map((m) => (
+              <div key={m.id} className="px-5 py-4 flex items-center gap-4 hover:bg-gray-50/50">
+                {m.type === "qris" && m.qris_image ? (
+                  <img src={m.qris_image} alt={m.name} className="w-12 h-12 rounded-lg object-cover border border-gray-200" />
+                ) : (
+                  <span className="w-12 h-12 rounded-lg grid place-items-center text-[11px] font-extrabold text-white shrink-0" style={{ background: m.color }}>
+                    {m.code}
+                  </span>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-[13px]">{m.name}</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${m.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                      {m.is_active ? "Aktif" : "Nonaktif"}
+                    </span>
+                    {m.type === "qris" && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">QRIS</span>
+                    )}
+                  </div>
+                  <p className="text-[12px] text-gray-500 mt-0.5">
+                    {m.type === "qris"
+                      ? m.qris_image ? "Gambar QRIS tersedia" : "Belum upload QRIS"
+                      : m.account_number ? `${m.account_number} • ${m.account_name || "-"}` : "Belum ada nomor rekening"
+                    }
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => toggleActive(m)}
+                    className={`relative w-10 h-5 rounded-full transition-colors ${m.is_active ? "bg-[#00D97E]" : "bg-gray-300"}`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${m.is_active ? "translate-x-5" : ""}`} />
+                  </button>
+                  <button onClick={() => handleEdit(m)} className="text-blue-600 hover:underline font-semibold text-[12px]">Edit</button>
+                  <button onClick={() => handleDelete(m.id)} className="text-red-500 hover:underline font-semibold text-[12px]">Hapus</button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ))}
 

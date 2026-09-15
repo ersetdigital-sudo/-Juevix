@@ -56,10 +56,16 @@ export interface Database {
         Row: {
           id: number;
           category: string;
+          type: string;
           name: string;
           label: string;
           code: string;
           color: string;
+          account_number: string | null;
+          account_name: string | null;
+          qris_image: string | null;
+          is_active: boolean;
+          icon: string | null;
           sort_order: number;
           created_at: string;
         };
