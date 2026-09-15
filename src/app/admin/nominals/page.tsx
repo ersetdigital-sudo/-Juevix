@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, Fragment } from "react";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import { useToast } from "@/components/admin/Toast";
 
@@ -59,7 +59,15 @@ export default function AdminNominals() {
 
   const filtered = filter ? nominals.filter((n) => n.game_slug === filter) : nominals;
 
-  const showGameCol = !filter;
+  const grouped = !filter
+    ? Object.entries(
+        filtered.reduce<Record<string, Nominal[]>>((acc, n) => {
+          if (!acc[n.game_slug]) acc[n.game_slug] = [];
+          acc[n.game_slug].push(n);
+          return acc;
+        }, {})
+      )
+    : null;
 
   const handleSubmit = async () => {
     setSaving(true);
@@ -246,7 +254,6 @@ export default function AdminNominals() {
           <thead>
             <tr className="border-b border-gray-100 text-left text-gray-500 font-semibold">
               <th className="w-10"></th>
-              {showGameCol && <th className="px-5 py-3">Game</th>}
               <th className="px-5 py-3">Label</th>
               <th className="px-5 py-3">Harga</th>
               <th className="px-5 py-3">Badge</th>
@@ -254,45 +261,83 @@ export default function AdminNominals() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((n, idx) => (
-              <tr
-                key={n.id}
-                draggable
-                onDragStart={() => handleDragStart(idx)}
-                onDragEnter={() => handleDragEnter(idx)}
-                onDragEnd={handleDragEnd}
-                onDragOver={(e) => e.preventDefault()}
-                className={`border-b border-gray-50 transition-colors ${
-                  dragId === n.id
-                    ? "bg-blue-50 opacity-50"
-                    : "hover:bg-gray-50/50"
-                }`}
-              >
-                <td className="px-2 py-3 text-center">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" className="mx-auto cursor-grab active:cursor-grabbing">
-                    <circle cx="9" cy="5" r="1.5" /><circle cx="15" cy="5" r="1.5" />
-                    <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
-                    <circle cx="9" cy="19" r="1.5" /><circle cx="15" cy="19" r="1.5" />
-                  </svg>
-                </td>
-                {showGameCol && <td className="px-5 py-3 font-bold">{n.game_slug}</td>}
-                <td className="px-5 py-3">{n.label}</td>
-                <td className="px-5 py-3 font-bold text-[#00b96b]">{fmt(n.price)}</td>
-                <td className="px-5 py-3">
-                  {n.badge && (
-                    <span className={`jx-badge ${n.badge_type === "ok" ? "jx-ok" : "jx-wait"}`}>
-                      {n.badge}
-                    </span>
-                  )}
-                </td>
-                <td className="px-5 py-3 text-right space-x-2">
-                  <button onClick={() => handleEdit(n)} className="text-blue-600 hover:underline font-semibold">Edit</button>
-                  <button onClick={() => setDeleteTarget(n)} className="text-red-500 hover:underline font-semibold">Hapus</button>
-                </td>
-              </tr>
-            ))}
+            {grouped ? (
+              grouped.map(([slug, items]) => {
+                const gameName = games.find((g) => g.slug === slug)?.name || slug;
+                return (
+                  <Fragment key={slug}>
+                    <tr className="bg-gray-50/80">
+                      <td colSpan={5} className="px-5 py-2 text-[11px] font-extrabold tracking-wider text-gray-400 uppercase">
+                        {gameName}
+                      </td>
+                    </tr>
+                    {items.map((n, idx) => (
+                      <tr
+                        key={n.id}
+                        draggable
+                        onDragStart={() => handleDragStart(idx)}
+                        onDragEnter={() => handleDragEnter(idx)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={(e) => e.preventDefault()}
+                        className={`border-b border-gray-50 transition-colors ${
+                          dragId === n.id ? "bg-blue-50 opacity-50" : "hover:bg-gray-50/50"
+                        }`}
+                      >
+                        <td className="px-2 py-3 text-center">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" className="mx-auto cursor-grab active:cursor-grabbing">
+                            <circle cx="9" cy="5" r="1.5" /><circle cx="15" cy="5" r="1.5" />
+                            <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                            <circle cx="9" cy="19" r="1.5" /><circle cx="15" cy="19" r="1.5" />
+                          </svg>
+                        </td>
+                        <td className="px-5 py-3">{n.label}</td>
+                        <td className="px-5 py-3 font-bold text-[#00b96b]">{fmt(n.price)}</td>
+                        <td className="px-5 py-3">
+                          {n.badge && <span className={`jx-badge ${n.badge_type === "ok" ? "jx-ok" : "jx-wait"}`}>{n.badge}</span>}
+                        </td>
+                        <td className="px-5 py-3 text-right space-x-2">
+                          <button onClick={() => handleEdit(n)} className="text-blue-600 hover:underline font-semibold">Edit</button>
+                          <button onClick={() => setDeleteTarget(n)} className="text-red-500 hover:underline font-semibold">Hapus</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </Fragment>
+                );
+              })
+            ) : (
+              filtered.map((n, idx) => (
+                <tr
+                  key={n.id}
+                  draggable
+                  onDragStart={() => handleDragStart(idx)}
+                  onDragEnter={() => handleDragEnter(idx)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => e.preventDefault()}
+                  className={`border-b border-gray-50 transition-colors ${
+                    dragId === n.id ? "bg-blue-50 opacity-50" : "hover:bg-gray-50/50"
+                  }`}
+                >
+                  <td className="px-2 py-3 text-center">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" className="mx-auto cursor-grab active:cursor-grabbing">
+                      <circle cx="9" cy="5" r="1.5" /><circle cx="15" cy="5" r="1.5" />
+                      <circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" />
+                      <circle cx="9" cy="19" r="1.5" /><circle cx="15" cy="19" r="1.5" />
+                    </svg>
+                  </td>
+                  <td className="px-5 py-3">{n.label}</td>
+                  <td className="px-5 py-3 font-bold text-[#00b96b]">{fmt(n.price)}</td>
+                  <td className="px-5 py-3">
+                    {n.badge && <span className={`jx-badge ${n.badge_type === "ok" ? "jx-ok" : "jx-wait"}`}>{n.badge}</span>}
+                  </td>
+                  <td className="px-5 py-3 text-right space-x-2">
+                    <button onClick={() => handleEdit(n)} className="text-blue-600 hover:underline font-semibold">Edit</button>
+                    <button onClick={() => setDeleteTarget(n)} className="text-red-500 hover:underline font-semibold">Hapus</button>
+                  </td>
+                </tr>
+              ))
+            )}
             {!loading && filtered.length === 0 && (
-              <tr><td colSpan={showGameCol ? 5 : 4} className="px-5 py-10 text-center text-gray-400">Belum ada nominal.</td></tr>
+              <tr><td colSpan={5} className="px-5 py-10 text-center text-gray-400">Belum ada nominal.</td></tr>
             )}
           </tbody>
         </table>
